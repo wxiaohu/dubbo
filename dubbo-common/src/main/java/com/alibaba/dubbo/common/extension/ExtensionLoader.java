@@ -68,6 +68,7 @@ public class ExtensionLoader<T> {
 
     private static final Pattern NAME_SEPARATOR = Pattern.compile("\\s*[,]+\\s*");
 
+    // ExtensionLoader缓存，类变量。所有ExtensionLoader实例共享。
     private static final ConcurrentMap<Class<?>, ExtensionLoader<?>> EXTENSION_LOADERS = new ConcurrentHashMap<Class<?>, ExtensionLoader<?>>();
 
     private static final ConcurrentMap<Class<?>, Object> EXTENSION_INSTANCES = new ConcurrentHashMap<Class<?>, Object>();
@@ -80,17 +81,28 @@ public class ExtensionLoader<T> {
 
     private final ConcurrentMap<Class<?>, String> cachedNames = new ConcurrentHashMap<Class<?>, String>();
 
+    // 扩展类Class对象缓存
     private final Holder<Map<String, Class<?>>> cachedClasses = new Holder<Map<String, Class<?>>>();
 
+    // 自动激活扩展类缓存
     private final Map<String, Activate> cachedActivates = new ConcurrentHashMap<String, Activate>();
+
+    // 扩展类 实例缓存
     private final ConcurrentMap<String, Holder<Object>> cachedInstances = new ConcurrentHashMap<String, Holder<Object>>();
     private final Holder<Object> cachedAdaptiveInstance = new Holder<Object>();
+
+    // 缓存的自适应类
     private volatile Class<?> cachedAdaptiveClass = null;
+
+    // 默认扩展类全路径字符串缓存
     private String cachedDefaultName;
+
     private volatile Throwable createAdaptiveInstanceError;
 
+    // WrapperClass缓存
     private Set<Class<?>> cachedWrapperClasses;
 
+    // 异常集合
     private Map<String, IllegalStateException> exceptions = new ConcurrentHashMap<String, IllegalStateException>();
 
     private ExtensionLoader(Class<?> type) {
@@ -102,6 +114,13 @@ public class ExtensionLoader<T> {
         return type.isAnnotationPresent(SPI.class);
     }
 
+    /**
+     * 获取 SPI接口的 ExtensionLoader对象。一个SPI接口对应一个ExtensionLoader对象。
+     *
+     * @param type
+     * @param <T>
+     * @return
+     */
     @SuppressWarnings("unchecked")
     public static <T> ExtensionLoader<T> getExtensionLoader(Class<T> type) {
         if (type == null)
@@ -286,6 +305,8 @@ public class ExtensionLoader<T> {
     }
 
     /**
+     * 根据key查询SPI接口的扩展类
+     * <p>
      * Find the extension with the given name. If the specified name is not found, then {@link IllegalStateException}
      * will be thrown.
      */
@@ -296,11 +317,13 @@ public class ExtensionLoader<T> {
         if ("true".equals(name)) {
             return getDefaultExtension();
         }
+        // 查缓存
         Holder<Object> holder = cachedInstances.get(name);
         if (holder == null) {
             cachedInstances.putIfAbsent(name, new Holder<Object>());
             holder = cachedInstances.get(name);
         }
+        // 双重检查，保证单例
         Object instance = holder.get();
         if (instance == null) {
             synchronized (holder) {
@@ -552,8 +575,15 @@ public class ExtensionLoader<T> {
         return clazz;
     }
 
+
+    /**
+     * 获取扩展类Class 对象
+     * @return
+     */
     private Map<String, Class<?>> getExtensionClasses() {
+        // 查缓存
         Map<String, Class<?>> classes = cachedClasses.get();
+        // 双重检查，保证单例
         if (classes == null) {
             synchronized (cachedClasses) {
                 classes = cachedClasses.get();
@@ -566,8 +596,14 @@ public class ExtensionLoader<T> {
         return classes;
     }
 
+
+    /**
+     * 加载配置文件中的扩展类
+     * @return
+     */
     // synchronized in getExtensionClasses
     private Map<String, Class<?>> loadExtensionClasses() {
+        // @SPI注解的参数是默认扩展类
         final SPI defaultAnnotation = type.getAnnotation(SPI.class);
         if (defaultAnnotation != null) {
             String value = defaultAnnotation.value();
@@ -588,8 +624,14 @@ public class ExtensionLoader<T> {
         return extensionClasses;
     }
 
+
+    /**
+     * 加载 配置文件
+     * @param extensionClasses
+     * @param dir
+     */
     private void loadDirectory(Map<String, Class<?>> extensionClasses, String dir) {
-        String fileName = dir + type.getName();
+        String fileName = dir + type.getName(); // 文件名
         try {
             Enumeration<java.net.URL> urls;
             ClassLoader classLoader = findClassLoader();
@@ -610,6 +652,7 @@ public class ExtensionLoader<T> {
         }
     }
 
+    // 读文件
     private void loadResource(Map<String, Class<?>> extensionClasses, ClassLoader classLoader, java.net.URL resourceURL) {
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(resourceURL.openStream(), "utf-8"));
@@ -645,12 +688,24 @@ public class ExtensionLoader<T> {
         }
     }
 
+    /**
+     * 对扩展类进行校验，然后返回
+     *
+     * @param extensionClasses 返回结果集合 key=扩展类 集合
+     * @param resourceURL      文件路径
+     * @param clazz            根据类路径加载的Class对象
+     * @param name             key
+     * @throws NoSuchMethodException
+     */
     private void loadClass(Map<String, Class<?>> extensionClasses, java.net.URL resourceURL, Class<?> clazz, String name) throws NoSuchMethodException {
+        // type类或接口与clazz相同或者是clazz类的父类。
         if (!type.isAssignableFrom(clazz)) {
             throw new IllegalStateException("Error when load extension class(interface: " +
                     type + ", class line: " + clazz.getName() + "), class "
                     + clazz.getName() + "is not subtype of interface.");
         }
+
+        // 扩展类上是否有 @Adaptive注解
         if (clazz.isAnnotationPresent(Adaptive.class)) {
             if (cachedAdaptiveClass == null) {
                 cachedAdaptiveClass = clazz;
@@ -659,6 +714,7 @@ public class ExtensionLoader<T> {
                         + cachedAdaptiveClass.getClass().getName()
                         + ", " + clazz.getClass().getName());
             }
+            // 是否是Wrapper类，clazz是否有一个包含type类型参数的构造器。
         } else if (isWrapperClass(clazz)) {
             Set<Class<?>> wrappers = cachedWrapperClasses;
             if (wrappers == null) {
@@ -666,20 +722,27 @@ public class ExtensionLoader<T> {
                 wrappers = cachedWrapperClasses;
             }
             wrappers.add(clazz);
+            // 普通扩展类
         } else {
+            // get无参构造器，没有抛异常出去。
             clazz.getConstructor();
+            // 这里找类上是否有一个早过期的@Extension注解，为了兼容？
+            // 如果name为空，会给一个默认值，
             if (name == null || name.length() == 0) {
                 name = findAnnotationName(clazz);
                 if (name.length() == 0) {
                     throw new IllegalStateException("No such extension name for the class " + clazz.getName() + " in the config " + resourceURL);
                 }
             }
+            // 多个实现
             String[] names = NAME_SEPARATOR.split(name);
             if (names != null && names.length > 0) {
+                // 自动激活注解
                 Activate activate = clazz.getAnnotation(Activate.class);
                 if (activate != null) {
                     cachedActivates.put(names[0], activate);
                 }
+                // 依次匹配
                 for (String n : names) {
                     if (!cachedNames.containsKey(clazz)) {
                         cachedNames.put(clazz, n);

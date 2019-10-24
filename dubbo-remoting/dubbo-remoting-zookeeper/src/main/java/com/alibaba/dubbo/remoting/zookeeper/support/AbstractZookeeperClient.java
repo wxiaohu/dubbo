@@ -50,6 +50,11 @@ public abstract class AbstractZookeeperClient<TargetChildListener> implements Zo
         return url;
     }
 
+    /**
+     *  创建ZK节点
+     * @param path 节点路径
+     * @param ephemeral 是否临时节点，持久节点会检查路径是否存在
+     */
     @Override
     public void create(String path, boolean ephemeral) {
         if (!ephemeral) {
@@ -57,6 +62,7 @@ public abstract class AbstractZookeeperClient<TargetChildListener> implements Zo
                 return;
             }
         }
+        // 通过这里递归创建持久化节点
         int i = path.lastIndexOf('/');
         if (i > 0) {
             create(path.substring(0, i), false);
@@ -87,13 +93,15 @@ public abstract class AbstractZookeeperClient<TargetChildListener> implements Zo
         ConcurrentMap<ChildListener, TargetChildListener> listeners = childListeners.get(path);
         if (listeners == null) {
             childListeners.putIfAbsent(path, new ConcurrentHashMap<ChildListener, TargetChildListener>());
-            listeners = childListeners.get(path);
+            listeners = childListeners.get(path);   // 获取这个ConcurrentHashMap引用，
         }
         TargetChildListener targetListener = listeners.get(listener);
         if (targetListener == null) {
+            // 创建一个zkClient对应的IZkChildListener 加进去。
             listeners.putIfAbsent(listener, createTargetChildListener(path, listener));
             targetListener = listeners.get(listener);
         }
+        // 把监听器绑定到节点上
         return addTargetChildListener(path, targetListener);
     }
 

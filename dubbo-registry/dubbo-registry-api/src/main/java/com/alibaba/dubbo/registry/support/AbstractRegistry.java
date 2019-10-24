@@ -68,10 +68,16 @@ public abstract class AbstractRegistry implements Registry {
     // Is it synchronized to save the file
     private final boolean syncSaveFile;
     private final AtomicLong lastCacheChanged = new AtomicLong();
+    // 服务注册地址列表
     private final Set<URL> registered = new ConcurrentHashSet<URL>();
+    // 服务订阅URL和监听器。
     private final ConcurrentMap<URL, Set<NotifyListener>> subscribed = new ConcurrentHashMap<URL, Set<NotifyListener>>();
+
     private final ConcurrentMap<URL, Map<String, List<URL>>> notified = new ConcurrentHashMap<URL, Map<String, List<URL>>>();
+
+    // 服务地址
     private URL registryUrl;
+    // 缓存，磁盘文件引用
     // Local disk cache file
     private File file;
 

@@ -48,14 +48,19 @@ public abstract class FailbackRegistry extends AbstractRegistry {
     // Timer for failure retry, regular check if there is a request for failure, and if there is, an unlimited retry
     private final ScheduledFuture<?> retryFuture;
 
+    // 发起注册，失败的URL集合
     private final Set<URL> failedRegistered = new ConcurrentHashSet<URL>();
 
+    // 取消注册，失败的URL集合
     private final Set<URL> failedUnregistered = new ConcurrentHashSet<URL>();
 
+    // 发起订阅，失败的RUL集合
     private final ConcurrentMap<URL, Set<NotifyListener>> failedSubscribed = new ConcurrentHashMap<URL, Set<NotifyListener>>();
 
+    // 取消订阅，失败的URL集合
     private final ConcurrentMap<URL, Set<NotifyListener>> failedUnsubscribed = new ConcurrentHashMap<URL, Set<NotifyListener>>();
 
+    // 通知失败的URL集合
     private final ConcurrentMap<URL, Map<NotifyListener, List<URL>>> failedNotified = new ConcurrentHashMap<URL, Map<NotifyListener, List<URL>>>();
 
     /**
@@ -129,7 +134,9 @@ public abstract class FailbackRegistry extends AbstractRegistry {
 
     @Override
     public void register(URL url) {
+        // 加入服务注册地址列表
         super.register(url);
+        // 移除失败列表。
         failedRegistered.remove(url);
         failedUnregistered.remove(url);
         try {

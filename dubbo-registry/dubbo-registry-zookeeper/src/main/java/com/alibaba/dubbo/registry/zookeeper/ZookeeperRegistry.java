@@ -52,6 +52,7 @@ public class ZookeeperRegistry extends FailbackRegistry {
 
     private final Set<String> anyServices = new ConcurrentHashSet<String>();
 
+    // 监听器缓存
     private final ConcurrentMap<URL, ConcurrentMap<NotifyListener, ChildListener>> zkListeners = new ConcurrentHashMap<URL, ConcurrentMap<NotifyListener, ChildListener>>();
 
     private final ZookeeperClient zkClient;
@@ -66,7 +67,9 @@ public class ZookeeperRegistry extends FailbackRegistry {
             group = Constants.PATH_SEPARATOR + group;
         }
         this.root = group;
+        // 返回zk客户端实现
         zkClient = zookeeperTransporter.connect(url);
+        // 状态监听器，到一个集合里。是干什么还不知道。
         zkClient.addStateListener(new StateListener() {
             @Override
             public void stateChanged(int state) {
@@ -108,6 +111,10 @@ public class ZookeeperRegistry extends FailbackRegistry {
         }
     }
 
+    /**
+     * 注册，创建zk节点，临时数据节点。
+     * @param url
+     */
     @Override
     protected void doRegister(URL url) {
         try {
@@ -117,6 +124,10 @@ public class ZookeeperRegistry extends FailbackRegistry {
         }
     }
 
+    /**
+     * 取消注册，删除zk节点
+     * @param url
+     */
     @Override
     protected void doUnregister(URL url) {
         try {
@@ -165,15 +176,17 @@ public class ZookeeperRegistry extends FailbackRegistry {
                 }
             } else {
                 List<URL> urls = new ArrayList<URL>();
-                for (String path : toCategoriesPath(url)) {
-                    ConcurrentMap<NotifyListener, ChildListener> listeners = zkListeners.get(url);
-                    if (listeners == null) {
+                for (String path : toCategoriesPath(url)) { // 根据URL获取一组订阅节点列表
+                    ConcurrentMap<NotifyListener, ChildListener> listeners = zkListeners.get(url);  // 获取监听器缓存，
+                    if (listeners == null) {    // 没有缓存新增一个
                         zkListeners.putIfAbsent(url, new ConcurrentHashMap<NotifyListener, ChildListener>());
                         listeners = zkListeners.get(url);
                     }
+                    // ChildListener
                     ChildListener zkListener = listeners.get(listener);
-                    if (zkListener == null) {
+                    if (zkListener == null) {   // 新增一个ChildListener
                         listeners.putIfAbsent(listener, new ChildListener() {
+                            // zk监听到节点变化会回调这里，同时回调NotifyListener。
                             @Override
                             public void childChanged(String parentPath, List<String> currentChilds) {
                                 ZookeeperRegistry.this.notify(url, listener, toUrlsWithEmpty(url, parentPath, currentChilds));
@@ -187,6 +200,7 @@ public class ZookeeperRegistry extends FailbackRegistry {
                         urls.addAll(toUrlsWithEmpty(url, path, children));
                     }
                 }
+                // 消费方启动更新全量数据
                 notify(url, listener, urls);
             }
         } catch (Throwable e) {
