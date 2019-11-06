@@ -71,14 +71,17 @@ public class ExtensionLoader<T> {
     // ExtensionLoader缓存，类变量。所有ExtensionLoader实例共享。
     private static final ConcurrentMap<Class<?>, ExtensionLoader<?>> EXTENSION_LOADERS = new ConcurrentHashMap<Class<?>, ExtensionLoader<?>>();
 
+    // 扩展类实例缓存
     private static final ConcurrentMap<Class<?>, Object> EXTENSION_INSTANCES = new ConcurrentHashMap<Class<?>, Object>();
 
     // ==============================
 
+    // SPI扩展点接口Class引用
     private final Class<?> type;
 
     private final ExtensionFactory objectFactory;
 
+    // key=impl对应的缓存
     private final ConcurrentMap<Class<?>, String> cachedNames = new ConcurrentHashMap<Class<?>, String>();
 
     // 扩展类Class对象缓存
@@ -94,7 +97,7 @@ public class ExtensionLoader<T> {
     // 缓存的自适应类
     private volatile Class<?> cachedAdaptiveClass = null;
 
-    // 默认扩展类全路径字符串缓存
+    // 默认扩展类名字缓存，配置在@SPI()中的参数
     private String cachedDefaultName;
 
     private volatile Throwable createAdaptiveInstanceError;
@@ -341,7 +344,7 @@ public class ExtensionLoader<T> {
      * Return default extension, return <code>null</code> if it's not configured.
      */
     public T getDefaultExtension() {
-        getExtensionClasses();
+        getExtensionClasses(); // 获取扩展类并缓存
         if (null == cachedDefaultName || cachedDefaultName.length() == 0
                 || "true".equals(cachedDefaultName)) {
             return null;
@@ -512,6 +515,7 @@ public class ExtensionLoader<T> {
             throw findException(name);
         }
         try {
+            // 实例化扩展类
             T instance = (T) EXTENSION_INSTANCES.get(clazz);
             if (instance == null) {
                 EXTENSION_INSTANCES.putIfAbsent(clazz, clazz.newInstance());
@@ -616,7 +620,7 @@ public class ExtensionLoader<T> {
                 if (names.length == 1) cachedDefaultName = names[0];
             }
         }
-
+        // 扩展类Class集合
         Map<String, Class<?>> extensionClasses = new HashMap<String, Class<?>>();
         loadDirectory(extensionClasses, DUBBO_INTERNAL_DIRECTORY);
         loadDirectory(extensionClasses, DUBBO_DIRECTORY);
@@ -698,14 +702,14 @@ public class ExtensionLoader<T> {
      * @throws NoSuchMethodException
      */
     private void loadClass(Map<String, Class<?>> extensionClasses, java.net.URL resourceURL, Class<?> clazz, String name) throws NoSuchMethodException {
-        // type类或接口与clazz相同或者是clazz类的父类。
+        // 判断扩展类clazz是否和type是同一个类或接口或者是其子类，如不是抛异常
         if (!type.isAssignableFrom(clazz)) {
             throw new IllegalStateException("Error when load extension class(interface: " +
                     type + ", class line: " + clazz.getName() + "), class "
                     + clazz.getName() + "is not subtype of interface.");
         }
 
-        // 扩展类上是否有 @Adaptive注解
+        // 扩展类上是否有 @Adaptive注解，先缓存起来
         if (clazz.isAnnotationPresent(Adaptive.class)) {
             if (cachedAdaptiveClass == null) {
                 cachedAdaptiveClass = clazz;
@@ -734,7 +738,7 @@ public class ExtensionLoader<T> {
                     throw new IllegalStateException("No such extension name for the class " + clazz.getName() + " in the config " + resourceURL);
                 }
             }
-            // 多个实现
+            // 这里为什么要用逗号分隔，key可以配置多个逗号分隔吗
             String[] names = NAME_SEPARATOR.split(name);
             if (names != null && names.length > 0) {
                 // 自动激活注解
