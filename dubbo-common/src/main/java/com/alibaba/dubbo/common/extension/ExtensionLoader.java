@@ -79,6 +79,7 @@ public class ExtensionLoader<T> {
     // SPI扩展点接口Class引用
     private final Class<?> type;
 
+    // 扩展工厂SPI扩展点
     private final ExtensionFactory objectFactory;
 
     // key=impl对应的缓存
@@ -92,9 +93,11 @@ public class ExtensionLoader<T> {
 
     // 扩展类 实例缓存
     private final ConcurrentMap<String, Holder<Object>> cachedInstances = new ConcurrentHashMap<String, Holder<Object>>();
+
+    // 自适应扩展类实例缓存
     private final Holder<Object> cachedAdaptiveInstance = new Holder<Object>();
 
-    // 缓存的自适应类
+    // @Adaptive在类上，默认自适应扩展类，不需要生成代码。缓存的自适应类Class对象
     private volatile Class<?> cachedAdaptiveClass = null;
 
     // 默认扩展类名字缓存，配置在@SPI()中的参数
@@ -110,6 +113,7 @@ public class ExtensionLoader<T> {
 
     private ExtensionLoader(Class<?> type) {
         this.type = type;
+        //
         objectFactory = (type == ExtensionFactory.class ? null : ExtensionLoader.getExtensionLoader(ExtensionFactory.class).getAdaptiveExtension());
     }
 
@@ -458,6 +462,11 @@ public class ExtensionLoader<T> {
         }
     }
 
+    /**
+     * 自适应扩展实现
+     *
+     * @return
+     */
     @SuppressWarnings("unchecked")
     public T getAdaptiveExtension() {
         Object instance = cachedAdaptiveInstance.get();
@@ -521,10 +530,12 @@ public class ExtensionLoader<T> {
                 EXTENSION_INSTANCES.putIfAbsent(clazz, clazz.newInstance());
                 instance = (T) EXTENSION_INSTANCES.get(clazz);
             }
+            // 依赖注入
             injectExtension(instance);
             Set<Class<?>> wrapperClasses = cachedWrapperClasses;
             if (wrapperClasses != null && !wrapperClasses.isEmpty()) {
                 for (Class<?> wrapperClass : wrapperClasses) {
+                    // 依赖注入
                     instance = injectExtension((T) wrapperClass.getConstructor(type).newInstance(instance));
                 }
             }
@@ -535,6 +546,14 @@ public class ExtensionLoader<T> {
         }
     }
 
+    /**
+     * 依赖注入实现：
+     * 1. 通过反射获取扩展类实例的所有方法，匹配方法名以set开头，参数长度为1，并且没有DisableInject注解的public方法。
+     * 2. 匹配出属性值和参数类型，通过ExtensionFactory实例化，最后调用invoke执行该方法。
+     *
+     * @param instance
+     * @return
+     */
     private T injectExtension(T instance) {
         try {
             if (objectFactory != null) {
@@ -582,6 +601,7 @@ public class ExtensionLoader<T> {
 
     /**
      * 获取扩展类Class 对象
+     *
      * @return
      */
     private Map<String, Class<?>> getExtensionClasses() {
@@ -603,6 +623,7 @@ public class ExtensionLoader<T> {
 
     /**
      * 加载配置文件中的扩展类
+     *
      * @return
      */
     // synchronized in getExtensionClasses
@@ -631,6 +652,7 @@ public class ExtensionLoader<T> {
 
     /**
      * 加载 配置文件
+     *
      * @param extensionClasses
      * @param dir
      */
@@ -709,7 +731,7 @@ public class ExtensionLoader<T> {
                     + clazz.getName() + "is not subtype of interface.");
         }
 
-        // 扩展类上是否有 @Adaptive注解，先缓存起来
+        // 扩展类上是否有 @Adaptive注解，先缓存起来，默认自适应扩展实现类，不需要生成代码
         if (clazz.isAnnotationPresent(Adaptive.class)) {
             if (cachedAdaptiveClass == null) {
                 cachedAdaptiveClass = clazz;
@@ -784,6 +806,11 @@ public class ExtensionLoader<T> {
         return extension.value();
     }
 
+    /**
+     * 创建自适应扩展实现类
+     *
+     * @return
+     */
     @SuppressWarnings("unchecked")
     private T createAdaptiveExtension() {
         try {
@@ -793,6 +820,11 @@ public class ExtensionLoader<T> {
         }
     }
 
+    /**
+     * 获取自适应默认扩展类，获取不到生成代码
+     *
+     * @return
+     */
     private Class<?> getAdaptiveExtensionClass() {
         getExtensionClasses();
         if (cachedAdaptiveClass != null) {
@@ -808,10 +840,16 @@ public class ExtensionLoader<T> {
         return compiler.compile(code, classLoader);
     }
 
+    /**
+     * 生成自适应扩展类代码
+     *
+     * @return
+     */
     private String createAdaptiveExtensionClassCode() {
         StringBuilder codeBuilder = new StringBuilder();
         Method[] methods = type.getMethods();
         boolean hasAdaptiveAnnotation = false;
+        // 检查所有方法是否有@Adaptive注解，所有方法上都没有该注解，拒绝创建自适应扩展类
         for (Method m : methods) {
             if (m.isAnnotationPresent(Adaptive.class)) {
                 hasAdaptiveAnnotation = true;
@@ -825,11 +863,11 @@ public class ExtensionLoader<T> {
         codeBuilder.append("package ").append(type.getPackage().getName()).append(";");
         codeBuilder.append("\nimport ").append(ExtensionLoader.class.getName()).append(";");
         codeBuilder.append("\npublic class ").append(type.getSimpleName()).append("$Adaptive").append(" implements ").append(type.getCanonicalName()).append(" {");
-
+        // 循环扩展点的所有方法。
         for (Method method : methods) {
-            Class<?> rt = method.getReturnType();
-            Class<?>[] pts = method.getParameterTypes();
-            Class<?>[] ets = method.getExceptionTypes();
+            Class<?> rt = method.getReturnType();           // 返回类型
+            Class<?>[] pts = method.getParameterTypes();    // 参数类型
+            Class<?>[] ets = method.getExceptionTypes();    // 异常类型
 
             Adaptive adaptiveAnnotation = method.getAnnotation(Adaptive.class);
             StringBuilder code = new StringBuilder(512);
