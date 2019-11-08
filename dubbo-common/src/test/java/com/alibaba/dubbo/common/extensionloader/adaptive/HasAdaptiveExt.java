@@ -26,5 +26,4 @@ public interface HasAdaptiveExt {
     @Adaptive
     String echo(URL url, String s);
 
-    String test1();
 }
