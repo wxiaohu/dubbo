@@ -88,7 +88,7 @@ public class ExtensionLoader<T> {
     // 普通扩展类Class对象缓存
     private final Holder<Map<String, Class<?>>> cachedClasses = new Holder<Map<String, Class<?>>>();
 
-    // 自动激活扩展类缓存
+    // 自动激活注解缓存
     private final Map<String, Activate> cachedActivates = new ConcurrentHashMap<String, Activate>();
 
     // 扩展类 实例缓存
@@ -628,7 +628,7 @@ public class ExtensionLoader<T> {
     private Map<String, Class<?>> getExtensionClasses() {
         // 查缓存
         Map<String, Class<?>> classes = cachedClasses.get();
-        // 双重检查，保证单例
+        // 双重检查，保证一条线程完成类加载
         if (classes == null) {
             synchronized (cachedClasses) {
                 classes = cachedClasses.get();
@@ -774,7 +774,7 @@ public class ExtensionLoader<T> {
             // get无参构造器，没有抛异常出去。
             clazz.getConstructor();
             // 这里找类上是否有一个早过期的@Extension注解，为了兼容？
-            // 如果name为空，会给一个默认值，
+            // 如果name为空，会给一个默认值，兼容jdk SPI配置
             if (name == null || name.length() == 0) {
                 name = findAnnotationName(clazz);
                 if (name.length() == 0) {
