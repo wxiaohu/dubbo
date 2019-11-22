@@ -25,23 +25,32 @@
     <dubbo:application name="demo-provider"/>
 
     <!-- use multicast registry center to export service -->
-<!--    <dubbo:registry address="multicast://224.5.6.7:1234"/>-->
+    <!--    <dubbo:registry address="multicast://224.5.6.7:1234"/>-->
 
     <dubbo:registry address="zookeeper://127.0.0.1:2181"/>
 
+<!--    <dubbo:provider default="true"><dubbo:service interface=""/></dubbo:provider>-->
+
+
     <!-- use dubbo protocol to export service on port 20880 -->
-    <dubbo:protocol name="dubbo" port="20880"/>
+    <dubbo:protocol name="dubbo" port="20880">
+        <dubbo:parameter key="a" value="b"/>
+    </dubbo:protocol>
 
     <!-- service implementation, as same as regular local bean -->
     <bean id="demoService" class="com.alibaba.dubbo.demo.provider.DemoServiceImpl"/>
 
     <!-- declare the service interface to be exported -->
-    <dubbo:service interface="com.alibaba.dubbo.demo.DemoService" ref="demoService"/>
+    <dubbo:service interface="com.alibaba.dubbo.demo.DemoService" ref="demoService">
+        <dubbo:method name="sayHello" async="true" onthrow="">
+            <dubbo:argument type="String"/>
+        </dubbo:method>
+    </dubbo:service>
 
     <!-- service implementation, as same as regular local bean -->
     <bean id="demoService2" class="com.alibaba.dubbo.demo.provider.DemoServiceImpl2"/>
 
     <!-- declare the service interface to be exported -->
-    <dubbo:service interface="com.alibaba.dubbo.demo.DemoService2" ref="demoService2"/>
+    <dubbo:service interface="com.alibaba.dubbo.demo.DemoService2" ref="demoService2" class="com.alibaba.dubbo.demo.DemoService2" />
 
 </beans>
