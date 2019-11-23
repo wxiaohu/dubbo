@@ -252,7 +252,7 @@ public class DubboBeanDefinitionParser implements BeanDefinitionParser {
         if (parameters != null) {
             beanDefinition.getPropertyValues().addPropertyValue("parameters", parameters);
         }
-        return beanDefinition;
+        return beanDefinition; // 返回beanDefinition，将所有的配置Bean交给Spring管理
     }
 
     private static boolean isPrimitive(Class<?> cls) {

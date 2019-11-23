@@ -29,8 +29,8 @@
 
     <dubbo:registry address="zookeeper://127.0.0.1:2181"/>
 
-<!--    <dubbo:provider default="true"><dubbo:service interface=""/></dubbo:provider>-->
-
+    <dubbo:provider default="false"></dubbo:provider>
+    <dubbo:provider></dubbo:provider>
 
     <!-- use dubbo protocol to export service on port 20880 -->
     <dubbo:protocol name="dubbo" port="20880">
@@ -41,7 +41,7 @@
     <bean id="demoService" class="com.alibaba.dubbo.demo.provider.DemoServiceImpl"/>
 
     <!-- declare the service interface to be exported -->
-    <dubbo:service interface="com.alibaba.dubbo.demo.DemoService" ref="demoService">
+    <dubbo:service interface="com.alibaba.dubbo.demo.DemoService" ref="demoService" delay="2">
         <dubbo:method name="sayHello" async="true" onthrow="">
             <dubbo:argument type="String"/>
         </dubbo:method>
@@ -51,6 +51,6 @@
     <bean id="demoService2" class="com.alibaba.dubbo.demo.provider.DemoServiceImpl2"/>
 
     <!-- declare the service interface to be exported -->
-    <dubbo:service interface="com.alibaba.dubbo.demo.DemoService2" ref="demoService2" class="com.alibaba.dubbo.demo.DemoService2" />
+    <dubbo:service interface="com.alibaba.dubbo.demo.DemoService2" ref="demoService2" class="com.alibaba.dubbo.demo.DemoService2"/>
 
 </beans>
