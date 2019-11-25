@@ -158,4 +158,8 @@ public class NettyServer extends AbstractServer implements Server {
         return channel.isBound();
     }
 
+    @Override
+    public void connected(Channel ch) throws RemotingException {
+        super.connected(ch);
+    }
 }
