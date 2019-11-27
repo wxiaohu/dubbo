@@ -71,7 +71,6 @@ public class DubboProtocol extends AbstractProtocol {
     //servicekey-stubmethods
     private final ConcurrentMap<String, String> stubServiceMethodsMap = new ConcurrentHashMap<String, String>();
     private ExchangeHandler requestHandler = new ExchangeHandlerAdapter() {
-
         @Override
         public Object reply(ExchangeChannel channel, Object message) throws RemotingException {
             if (message instanceof Invocation) {
@@ -107,6 +106,7 @@ public class DubboProtocol extends AbstractProtocol {
                     + (message == null ? null : (message.getClass().getName() + ": " + message))
                     + ", channel: consumer: " + channel.getRemoteAddress() + " --> provider: " + channel.getLocalAddress());
         }
+
 
         @Override
         public void received(Channel channel, Object message) throws RemotingException {

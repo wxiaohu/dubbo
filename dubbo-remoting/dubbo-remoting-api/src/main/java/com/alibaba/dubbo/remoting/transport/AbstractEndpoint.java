@@ -29,6 +29,7 @@ import com.alibaba.dubbo.remoting.transport.codec.CodecAdapter;
 
 /**
  * AbstractEndpoint
+ * Endpoint的抽象，封装编解码器和超时时间参数。
  */
 public abstract class AbstractEndpoint extends AbstractPeer implements Resetable {
 

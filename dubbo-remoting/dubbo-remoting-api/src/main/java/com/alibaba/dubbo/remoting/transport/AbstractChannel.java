@@ -23,6 +23,7 @@ import com.alibaba.dubbo.remoting.RemotingException;
 
 /**
  * AbstractChannel
+ * Channel的抽象类，
  */
 public abstract class AbstractChannel extends AbstractPeer implements Channel {
 

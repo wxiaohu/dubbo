@@ -36,6 +36,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * AbstractServer
+ * Server抽象类，服务器公共逻辑
  */
 public abstract class AbstractServer extends AbstractEndpoint implements Server {
 
