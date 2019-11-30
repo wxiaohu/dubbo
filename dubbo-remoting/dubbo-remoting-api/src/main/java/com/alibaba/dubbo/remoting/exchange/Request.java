@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Request.
+ * 请求消息封装
  */
 public class Request {
 

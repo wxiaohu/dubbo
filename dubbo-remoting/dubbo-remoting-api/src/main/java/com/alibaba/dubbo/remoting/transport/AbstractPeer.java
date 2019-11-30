@@ -25,7 +25,7 @@ import com.alibaba.dubbo.remoting.RemotingException;
 
 /**
  * AbstractPeer,对ChannelHandler的增强，缓存了closed和closing两个状态
- * 装饰模式的抽象装饰类，持有抽象接口角色ChannelHandler引用。
+ * 不应该理解为装饰模式的抽象装饰类，持有抽象接口角色ChannelHandler引用。应该是子类需要ChannelHandler去处理消息
  */
 public abstract class AbstractPeer implements Endpoint, ChannelHandler {
 

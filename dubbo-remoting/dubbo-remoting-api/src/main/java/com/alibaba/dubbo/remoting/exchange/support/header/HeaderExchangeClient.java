@@ -39,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * DefaultMessageClient
+ * 基于协议头的信息交换客户端
  */
 public class HeaderExchangeClient implements ExchangeClient {
 

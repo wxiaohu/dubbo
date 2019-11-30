@@ -18,6 +18,7 @@ package com.alibaba.dubbo.remoting.exchange;
 
 /**
  * Response
+ * 响应消息封装
  */
 public class Response {
 

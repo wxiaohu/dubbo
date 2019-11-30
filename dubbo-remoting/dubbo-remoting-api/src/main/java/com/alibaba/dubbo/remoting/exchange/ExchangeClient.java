@@ -20,8 +20,8 @@ import com.alibaba.dubbo.remoting.Client;
 
 /**
  * ExchangeClient. (API/SPI, Prototype, ThreadSafe)
- *
- *
+ * <p>
+ * Exchange层客户端
  */
 public interface ExchangeClient extends Client, ExchangeChannel {
 

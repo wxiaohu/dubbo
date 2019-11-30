@@ -34,7 +34,8 @@ import com.alibaba.dubbo.remoting.exchange.support.DefaultFuture;
 import java.net.InetSocketAddress;
 
 /**
- * ExchangeReceiver
+ * ExchangeReceiver，Exchange层对Channel的装饰，对消息加上了request和response模型，
+ * 基于协议头的信息交换通道，应该是依赖Transport的Channel
  */
 final class HeaderExchangeChannel implements ExchangeChannel {
 
