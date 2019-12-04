@@ -27,6 +27,7 @@ import java.net.InetSocketAddress;
  * @see com.alibaba.dubbo.remoting.Channel
  * @see com.alibaba.dubbo.remoting.Client
  * @see com.alibaba.dubbo.remoting.Server
+ *
  */
 public interface Endpoint {
 

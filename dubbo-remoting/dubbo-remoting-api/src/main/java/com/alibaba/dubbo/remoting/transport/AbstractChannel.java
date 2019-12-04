@@ -23,7 +23,7 @@ import com.alibaba.dubbo.remoting.RemotingException;
 
 /**
  * AbstractChannel
- * Channel的抽象类，发消息逻辑
+ * 通道Channel的抽象类，继承AbstractPeer实现Channel接口。重写了发送send方法，如果通道关闭直接抛异常。
  */
 public abstract class AbstractChannel extends AbstractPeer implements Channel {
 

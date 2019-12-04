@@ -22,6 +22,7 @@ import com.alibaba.dubbo.remoting.Dispatcher;
 
 /**
  * In addition to sending all the use thread pool processing
+ * 线程池调度策略：把接收到的请求消息分发到线程池，而除了请求消息以外，其他消息类型都直接通过I / O线程直接执行
  */
 public class ExecutionDispatcher implements Dispatcher {
 

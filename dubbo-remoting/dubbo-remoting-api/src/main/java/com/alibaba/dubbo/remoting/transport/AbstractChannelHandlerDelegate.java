@@ -22,7 +22,7 @@ import com.alibaba.dubbo.remoting.ChannelHandler;
 import com.alibaba.dubbo.remoting.RemotingException;
 
 /**
- * 装饰器模式中的抽象装饰器，对ChannelHandler的扩展
+ * 对ChannelHandler的扩展，装饰器模式中的抽象装饰器角色
  */
 public abstract class AbstractChannelHandlerDelegate implements ChannelHandlerDelegate {
 

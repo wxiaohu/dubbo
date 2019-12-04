@@ -36,7 +36,10 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * AbstractServer
- * Server抽象类，服务器公共逻辑
+ * 1. 服务端抽象类，继承AbstractEndpoint，实现Server接口。实现了发送消息，关闭服务，客户端连接后，客户端断开连接后等服务端公共逻辑。
+ * 2. 提供accepts属性：服务提供者最大可接受连接数。idleTimeout属性：空闲超时时间，不知道什么用。默认从URL中获取值。实现reset方法重置这两个配置，而外提了一个重置threads（服务线程池大小(固定大小)）参数的逻辑。
+ * 3. 提供localAddress：本地地址。bindAddress：绑定地址。两个属性，不知道有啥用。默认从URL中获取值。
+ * 4. 提供executor实例引用属性，默认从DataSource线程池缓存中拿到线程池引用，用于调用close关闭方法时关闭线程池。
  */
 public abstract class AbstractServer extends AbstractEndpoint implements Server {
 

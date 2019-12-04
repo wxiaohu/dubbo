@@ -24,8 +24,10 @@ import com.alibaba.dubbo.remoting.Endpoint;
 import com.alibaba.dubbo.remoting.RemotingException;
 
 /**
- * AbstractPeer,对ChannelHandler的增强，缓存了closed和closing两个状态
- * 不应该理解为装饰模式的抽象装饰类，持有抽象接口角色ChannelHandler引用。应该是子类需要ChannelHandler去处理消息
+ * AbstractPeer
+ * 1. 实现Endpoint和ChannelHandler接口，抽象对等，在端点Endpoint上引入ChannelHandler处理能力。
+ * 2. 提供close,closing两个关闭状态属性，用于判断Endpoint中关闭相关方法的状态，是关闭还是关闭中。加入closing状态是为了如果服务器已进入关闭过程，请拒绝任何新连接。
+ * 3. 继承ChannelHandler接口并在类中持有一个ChannelHandler引用，装饰模式中的抽象装饰类。那么其子类NettyServer，NettyClient等自身就是一个ChannelHandler。
  */
 public abstract class AbstractPeer implements Endpoint, ChannelHandler {
 

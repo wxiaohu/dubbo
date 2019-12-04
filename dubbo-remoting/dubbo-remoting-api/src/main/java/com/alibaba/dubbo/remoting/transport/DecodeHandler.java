@@ -27,7 +27,7 @@ import com.alibaba.dubbo.remoting.exchange.Request;
 import com.alibaba.dubbo.remoting.exchange.Response;
 
 /**
- * ChannelHandler装饰类， 新增收到消息后进行解码功能
+ * ChannelHandler具体装饰类， 新增收到消息后进行解码功能。
  */
 public class DecodeHandler extends AbstractChannelHandlerDelegate {
 

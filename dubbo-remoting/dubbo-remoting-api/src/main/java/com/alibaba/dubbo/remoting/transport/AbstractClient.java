@@ -45,9 +45,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * AbstractClient
- * Client抽象类，客户端公共逻辑
- * 实现客户端重连逻辑，
- * 初始化线程池，
+ * 1. 客户端抽象类，继承AbstractEndpoint实现Client接口，提供发送消息，关闭服务，断开连接等公共逻辑。实现了客户端重连逻辑，提供从通道Channel中获取属性和设置属性的方法。
+ * 2. 提供executor实例引用属性，默认从DataSource线程池缓存中拿到线程池引用，用于调用close关闭服务时关闭线程池。
+ * 3. 重连逻辑：调用连接方法时初始化一个定时调度线程池ScheduledThreadPoolExecutor。周期性调用连接方法，如果已经连接直接返回。后面2.7.x版本中这个重连逻辑去掉了不知道为什么。
  */
 public abstract class AbstractClient extends AbstractEndpoint implements Client {
 

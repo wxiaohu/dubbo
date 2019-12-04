@@ -22,6 +22,7 @@ import com.alibaba.dubbo.remoting.Dispatcher;
 
 /**
  * default thread pool configure
+ * 线程池调度策略：连接、断开连接、捕获异常以及接收到的所有消息都分发到线程池。默认调度策略。
  */
 public class AllDispatcher implements Dispatcher {
 

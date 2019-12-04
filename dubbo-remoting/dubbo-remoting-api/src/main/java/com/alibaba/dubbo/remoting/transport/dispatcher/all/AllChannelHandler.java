@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 
 /**
- * 连接、断开连接、捕获异常以及接收到的所有消息都分发到线程池。
+ * 线程池调度策略处理器，对应AllDispatcher策略
  */
 public class AllChannelHandler extends WrappedChannelHandler {
 

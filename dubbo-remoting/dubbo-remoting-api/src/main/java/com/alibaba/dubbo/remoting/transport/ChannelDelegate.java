@@ -25,6 +25,7 @@ import java.net.InetSocketAddress;
 
 /**
  * ChannelDelegate
+ * 通道Channel代表，装饰模式中的装饰器角色，对Channel功能的增强。好像没有用到。
  */
 public class ChannelDelegate implements Channel {
 

@@ -29,7 +29,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 /**
- * AbstractCodec，编解码公共逻辑
+ * AbstractCodec，
+ * 1. 实现Codec2接口。编解码抽象类，提供编解码公共逻辑。
  */
 public abstract class AbstractCodec implements Codec2 {
 

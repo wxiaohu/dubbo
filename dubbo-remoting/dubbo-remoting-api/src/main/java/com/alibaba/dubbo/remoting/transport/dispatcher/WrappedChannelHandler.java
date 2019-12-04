@@ -33,7 +33,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * 相当于ChannelHandler的装饰类，新增了线程池
+ * ChannelHandler的装饰类，新增了初始化工作线程池功能。
  */
 public class WrappedChannelHandler implements ChannelHandlerDelegate {
 

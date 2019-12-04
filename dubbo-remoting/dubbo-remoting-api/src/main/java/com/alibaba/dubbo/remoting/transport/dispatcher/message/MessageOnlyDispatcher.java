@@ -22,6 +22,7 @@ import com.alibaba.dubbo.remoting.Dispatcher;
 
 /**
  * Only message receive uses the thread pool.
+ * 线程池调度策略：所有接收到的消息分发到线程池
  */
 public class MessageOnlyDispatcher implements Dispatcher {
 

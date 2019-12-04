@@ -29,7 +29,9 @@ import com.alibaba.dubbo.remoting.transport.codec.CodecAdapter;
 
 /**
  * AbstractEndpoint
- * Endpoint的抽象，封装编解码器和超时时间参数。
+ * 1. 端点Endpoint抽象，继承AbstractPeer实现Resetable。
+ * 2. 提供timeout,connectTimeout两个超时时间属性，并实现了Resetable接口的reset(URL)方法重置这两个参数。
+ * 3. 提供Codec2编解码接口属性，通过Dubbo SPI扩展机制获取编解码实现。这里有有个适配器CodecAdapter，把Codec接口转换为Codec2接口
  */
 public abstract class AbstractEndpoint extends AbstractPeer implements Resetable {
 

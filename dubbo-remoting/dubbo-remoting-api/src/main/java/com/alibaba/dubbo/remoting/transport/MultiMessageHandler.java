@@ -22,7 +22,8 @@ import com.alibaba.dubbo.remoting.RemotingException;
 import com.alibaba.dubbo.remoting.exchange.support.MultiMessage;
 
 /**
- * @see MultiMessage // ChannelHandler装饰类，处理多消息
+ * @see MultiMessage
+ * ChannelHandler具体装饰类，新增多消息处理功能。
  */
 public class MultiMessageHandler extends AbstractChannelHandlerDelegate {
 
