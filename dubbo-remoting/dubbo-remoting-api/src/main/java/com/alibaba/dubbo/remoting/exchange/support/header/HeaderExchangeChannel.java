@@ -24,18 +24,15 @@ import com.alibaba.dubbo.common.logger.LoggerFactory;
 import com.alibaba.dubbo.remoting.Channel;
 import com.alibaba.dubbo.remoting.ChannelHandler;
 import com.alibaba.dubbo.remoting.RemotingException;
-import com.alibaba.dubbo.remoting.exchange.ExchangeChannel;
-import com.alibaba.dubbo.remoting.exchange.ExchangeHandler;
-import com.alibaba.dubbo.remoting.exchange.Request;
-import com.alibaba.dubbo.remoting.exchange.Response;
-import com.alibaba.dubbo.remoting.exchange.ResponseFuture;
+import com.alibaba.dubbo.remoting.exchange.*;
 import com.alibaba.dubbo.remoting.exchange.support.DefaultFuture;
 
 import java.net.InetSocketAddress;
 
 /**
- * ExchangeReceiver，Exchange层对Channel的装饰，对消息加上了request和response模型，
- * 基于协议头的信息交换通道，应该是依赖Transport的Channel
+ * ExchangeReceiver，
+ * 1. 基于协议头的信息交换通道，实现ExchangeChannel接口，持有Channel接口引用。Channel接口的装饰类。
+ * 2. 对发送到Channel的消息增加了Request/Response响应模型，实现了异步发送请求request方法。
  */
 final class HeaderExchangeChannel implements ExchangeChannel {
 

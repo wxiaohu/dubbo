@@ -28,7 +28,7 @@ import com.alibaba.dubbo.remoting.exchange.Response;
 import com.alibaba.dubbo.remoting.transport.AbstractChannelHandlerDelegate;
 
 /**
- * 心跳检查处理器
+ * ChannelHandler的装饰类，新增心跳检查消息的处理
  */
 public class HeartbeatHandler extends AbstractChannelHandlerDelegate {
 

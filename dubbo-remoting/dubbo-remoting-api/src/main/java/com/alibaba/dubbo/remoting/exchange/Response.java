@@ -22,8 +22,14 @@ package com.alibaba.dubbo.remoting.exchange;
  */
 public class Response {
 
+    /**
+     * 心跳事件
+     */
     public static final String HEARTBEAT_EVENT = null;
 
+    /**
+     * 只读事件
+     */
     public static final String READONLY_EVENT = "R";
 
     /**

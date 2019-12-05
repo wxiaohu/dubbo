@@ -28,6 +28,7 @@ import com.alibaba.dubbo.remoting.transport.ChannelHandlerAdapter;
 
 /**
  * Exchanger facade. (API, Static, ThreadSafe)
+ * 交换层工具类，外观模式
  */
 public class Exchangers {
 

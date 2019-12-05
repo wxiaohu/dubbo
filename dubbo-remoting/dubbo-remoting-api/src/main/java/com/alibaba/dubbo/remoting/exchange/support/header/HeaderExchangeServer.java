@@ -42,7 +42,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * ExchangeServerImpl
- * 基于协议头的Server实现类
+ * 基于协议头的交换层服务端，Server的装饰器类。提供心跳检测逻辑
  */
 public class HeaderExchangeServer implements ExchangeServer {
 

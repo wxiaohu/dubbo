@@ -27,7 +27,8 @@ import com.alibaba.dubbo.remoting.transport.ChannelHandlerDispatcher;
 
 /**
  * ExchangeHandlerDispatcher
- * 交换层处理器调度器
+ * 交换处理器调度器接口，实现了ExchangeHandler接口。
+ * 该类中的三个属性分别对应了三种不同的事件。
  */
 public class ExchangeHandlerDispatcher implements ExchangeHandler {
 

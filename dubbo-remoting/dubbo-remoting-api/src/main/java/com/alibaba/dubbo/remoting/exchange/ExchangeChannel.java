@@ -21,7 +21,7 @@ import com.alibaba.dubbo.remoting.RemotingException;
 
 /**
  * ExchangeChannel. (API/SPI, Prototype, ThreadSafe)
- * Exchange层通道，新增Future，对消息加上了request和response模型，
+ * 继承Channel接口。信息交换层通道接口，提供了两个返回ResponseFuture的request方法，用来支持异步发送消息。
  */
 public interface ExchangeChannel extends Channel {
 

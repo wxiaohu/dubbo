@@ -22,7 +22,8 @@ import com.alibaba.dubbo.remoting.exchange.ExchangeHandler;
 import com.alibaba.dubbo.remoting.telnet.support.TelnetHandlerAdapter;
 
 /**
- * ExchangeHandlerAdapter，适配器，实现了接口方法
+ * ExchangeHandlerAdapter，
+ * ExchangeHandler的适配器，实现了接口方法，子类选择性的去实现具体的回复方法。
  */
 public abstract class ExchangeHandlerAdapter extends TelnetHandlerAdapter implements ExchangeHandler {
 
@@ -30,7 +31,4 @@ public abstract class ExchangeHandlerAdapter extends TelnetHandlerAdapter implem
     public Object reply(ExchangeChannel channel, Object msg) throws RemotingException {
         return null;
     }
-
-
-
 }

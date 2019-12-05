@@ -23,6 +23,7 @@ import com.alibaba.dubbo.remoting.RemotingException;
  *
  * @see com.alibaba.dubbo.remoting.exchange.ExchangeChannel#request(Object)
  * @see com.alibaba.dubbo.remoting.exchange.ExchangeChannel#request(Object, int)
+ * 响应Future接口，和Java中的Future接口类似，用于异步执行获取响应结果，设置异步回调等。
  */
 public interface ResponseFuture {
 

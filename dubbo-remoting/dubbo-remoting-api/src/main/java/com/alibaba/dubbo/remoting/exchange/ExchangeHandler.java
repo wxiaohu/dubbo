@@ -22,7 +22,7 @@ import com.alibaba.dubbo.remoting.telnet.TelnetHandler;
 
 /**
  * ExchangeHandler. (API, Prototype, ThreadSafe)
- * Exchange层处理器接口
+ * 交换层通道处理器接口，继承ChannelHandler和TelnetHandler。只定义了一个回复请求结果的方法，返回请求结果
  */
 public interface ExchangeHandler extends ChannelHandler, TelnetHandler {
 

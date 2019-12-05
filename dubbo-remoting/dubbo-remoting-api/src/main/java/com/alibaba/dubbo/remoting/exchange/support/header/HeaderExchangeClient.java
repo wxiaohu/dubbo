@@ -39,7 +39,10 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * DefaultMessageClient
- * 基于协议头的信息交换客户端
+ * 1. 基于协议头的交换层客户端，实现ExchangeClient接口。
+ * 2. Client和ExchangeHandler的装饰类，间接继承Client和ExchangeHandler两个接口，代码中持有这两个接口的引用，实现方法都是调用两个接口的方法。
+ * 3. 新增了心跳功能：通过定时调度线程池ScheduledThreadPoolExecutor实现。后面版本改用HashedWheelTimer。
+ * 4. 对于长连接，一些拔网线等物理层的断开，会导致TCP的FIN消息来不及发送，对方收不到断开事件，那么就需要用到发送心跳包来检测连接是否断开。consumer和provider断开，处理措施不一样，会分别做出重连和关闭通道的操作
  */
 public class HeaderExchangeClient implements ExchangeClient {
 

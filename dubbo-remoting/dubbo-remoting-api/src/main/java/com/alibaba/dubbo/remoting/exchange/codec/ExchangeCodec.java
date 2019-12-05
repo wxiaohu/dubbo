@@ -43,7 +43,6 @@ import java.io.InputStream;
 
 /**
  * ExchangeCodec.
- * <p>
  * 对Dubbo协议头的编解码
  */
 public class ExchangeCodec extends TelnetCodec {

@@ -26,7 +26,7 @@ import java.util.List;
 
 /**
  * @see com.alibaba.dubbo.remoting.transport.MultiMessageHandler
- * 多消息封装
+ * 对多消息封装
  */
 public final class MultiMessage implements Iterable {
 

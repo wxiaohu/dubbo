@@ -38,6 +38,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * DefaultFuture.
+ * ResponseFuture的实现，该类的属性包含了request、response、channel三个实例，在该类中，把请求和响应通过唯一的id一一对应起来。做到异步处理返回结果时能给准确的返回给对应的请求。
+ * 可以看到属性中有两个集合，分别是通道集合和future集合，也就是该类本身也是所有 DefaultFuture 的管理容器。
  */
 public class DefaultFuture implements ResponseFuture {
 
