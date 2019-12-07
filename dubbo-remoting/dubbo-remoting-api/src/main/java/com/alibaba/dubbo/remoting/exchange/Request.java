@@ -32,7 +32,7 @@ public class Request {
     public static final String HEARTBEAT_EVENT = null;
 
     /**
-     * 只读事件
+     * 只读事件，用于优雅停机
      */
     public static final String READONLY_EVENT = "R";
 
