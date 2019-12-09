@@ -47,6 +47,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Record access log for the service.
+ * 访问日志过滤器
  * <p>
  * Logger key is <code><b>dubbo.accesslog</b></code>.
  * In order to configure access log appear in the specified appender only, additivity need to be configured in log4j's

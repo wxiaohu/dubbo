@@ -30,6 +30,7 @@ import java.util.Map;
 
 /**
  * TokenInvokerFilter
+ * token的验证功能
  */
 @Activate(group = Constants.PROVIDER, value = Constants.TOKEN_KEY)
 public class TokenFilter implements Filter {

@@ -26,6 +26,7 @@ import java.util.List;
 
 /**
  * ListenerExporter
+ * exporter包装器类
  */
 public class ListenerExporterWrapper<T> implements Exporter<T> {
 

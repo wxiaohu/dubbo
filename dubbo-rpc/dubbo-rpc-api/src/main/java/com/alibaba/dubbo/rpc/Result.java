@@ -20,6 +20,7 @@ import java.util.Map;
 
 /**
  * RPC invoke result. (API, Prototype, NonThreadSafe)
+ * RPC调用结果接口
  *
  * @serial Don't change the class name and package name.
  * @see com.alibaba.dubbo.rpc.Invoker#invoke(Invocation)

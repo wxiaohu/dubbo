@@ -20,6 +20,7 @@ import com.alibaba.dubbo.common.extension.SPI;
 
 /**
  * ExporterListener. (SPI, Singleton, ThreadSafe)
+ * 暴露服务的监听接口，监听exported和unexported事件
  */
 @SPI
 public interface ExporterListener {

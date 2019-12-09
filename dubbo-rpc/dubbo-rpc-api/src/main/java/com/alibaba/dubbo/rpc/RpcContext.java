@@ -36,6 +36,7 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * Thread local context. (API, ThreadLocal, ThreadSafe)
+ * RPC 上下文
  * <p>
  * Note: RpcContext is a temporary state holder. States in RpcContext changes every time when request is sent or received.
  * For example: A invokes B, then B invokes C. On service B, RpcContext saves invocation info from A to B before B

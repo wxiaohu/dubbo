@@ -29,6 +29,7 @@ import java.util.List;
 
 /**
  * ListenerInvoker
+ * Invoker包装类，
  */
 public class ListenerInvokerWrapper<T> implements Invoker<T> {
 

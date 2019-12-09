@@ -20,6 +20,7 @@ import com.alibaba.dubbo.common.extension.SPI;
 
 /**
  * InvokerListener. (SPI, Singleton, ThreadSafe)
+ * 调用者监听，调用者被引用，调用者被销毁时触发
  */
 @SPI
 public interface InvokerListener {

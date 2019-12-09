@@ -45,6 +45,7 @@ import java.lang.reflect.Method;
 
 /**
  * GenericInvokerFilter.
+ * 对于泛化调用的请求和结果进行反序列化和序列化的操作
  */
 @Activate(group = Constants.PROVIDER, order = -20000)
 public class GenericFilter implements Filter {

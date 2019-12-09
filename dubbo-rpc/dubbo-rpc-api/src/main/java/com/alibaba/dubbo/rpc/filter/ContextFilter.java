@@ -32,6 +32,7 @@ import java.util.Map;
 
 /**
  * ContextInvokerFilter
+ * 初始化rpc上下文
  */
 @Activate(group = Constants.PROVIDER, order = -10000)
 public class ContextFilter implements Filter {

@@ -31,6 +31,7 @@ import java.util.Set;
 
 /**
  * DeprecatedInvokerFilter
+ * 调用了废弃的方法时打印错误日志
  */
 @Activate(group = Constants.CONSUMER, value = Constants.DEPRECATED_KEY)
 public class DeprecatedFilter implements Filter {
