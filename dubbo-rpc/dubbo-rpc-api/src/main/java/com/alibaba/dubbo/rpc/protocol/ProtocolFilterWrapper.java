@@ -31,6 +31,7 @@ import java.util.List;
 
 /**
  * ListenerProtocol
+ * 暴露服务和引用服务时增加Filter
  */
 public class ProtocolFilterWrapper implements Protocol {
 

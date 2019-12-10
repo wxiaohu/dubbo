@@ -81,17 +81,25 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
     private final List<URL> urls = new ArrayList<URL>();
     private final List<Exporter<?>> exporters = new ArrayList<Exporter<?>>();
     // interface type
+    // 接口名，对应service--->interface
     private String interfaceName;
     private Class<?> interfaceClass;
     // reference to interface impl
     private T ref;
     // service name
+    // 服务名
     private String path;
     // method configuration
     private List<MethodConfig> methods;
     private ProviderConfig provider;
+    /**
+     * 状态，服务是否已经暴露
+     */
     private transient volatile boolean exported;
 
+    /**
+     * 状态
+     */
     private transient volatile boolean unexported;
 
     private volatile String generic;
@@ -193,6 +201,9 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         return unexported;
     }
 
+    /**
+     * 暴露服务
+     */
     public synchronized void export() {
         if (provider != null) {
             if (export == null) {
@@ -202,10 +213,11 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                 delay = provider.getDelay();
             }
         }
+        // 不暴露直接返回
         if (export != null && !export) {
             return;
         }
-
+        // 设置延时暴露定时任务
         if (delay != null && delay > 0) {
             delayExportExecutor.schedule(new Runnable() {
                 @Override
@@ -222,14 +234,18 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         if (unexported) {
             throw new IllegalStateException("Already unexported!");
         }
+        // 已经暴露服务直接返回
         if (exported) {
             return;
         }
         exported = true;
+        // 校验interface 参数配置
         if (interfaceName == null || interfaceName.length() == 0) {
             throw new IllegalStateException("<dubbo:service interface=\"\" /> interface not allow null!");
         }
+        // 检查Provider，如果没有则通过系统变量和properties配置文件初始化一个provider对象。
         checkDefault();
+        // 从provider中获取application等配置
         if (provider != null) {
             if (application == null) {
                 application = provider.getApplication();

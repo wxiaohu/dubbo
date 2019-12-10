@@ -149,7 +149,7 @@ public class ServiceBean<T> extends ServiceConfig<T> implements InitializingBean
                     }
                 } else {
                     ProviderConfig providerConfig = null;
-                    //过滤处理，default参数为空或者true的情况下，有多个provider会报错
+                    //多个Provider过滤处理，default参数为空或者true的情况下，有多个provider会报错
                     for (ProviderConfig config : providerConfigMap.values()) {
                         if (config.isDefault() == null || config.isDefault().booleanValue()) {
                             if (providerConfig != null) {
@@ -211,7 +211,7 @@ public class ServiceBean<T> extends ServiceConfig<T> implements InitializingBean
             Map<String, RegistryConfig> registryConfigMap = applicationContext == null ? null : BeanFactoryUtils.beansOfTypeIncludingAncestors(applicationContext, RegistryConfig.class, false, false);
             if (registryConfigMap != null && registryConfigMap.size() > 0) {
                 List<RegistryConfig> registryConfigs = new ArrayList<RegistryConfig>();
-                // defautl=false不设置进去
+                // default=false不设置进去
                 for (RegistryConfig config : registryConfigMap.values()) {
                     if (config.isDefault() == null || config.isDefault().booleanValue()) {
                         registryConfigs.add(config);

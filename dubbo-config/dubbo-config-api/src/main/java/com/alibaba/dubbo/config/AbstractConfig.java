@@ -89,27 +89,37 @@ public abstract class AbstractConfig implements Serializable {
         return value;
     }
 
+    /**
+     * 从环境变量和dubbo.properties配置文件中读取配置
+     *
+     * @param config
+     */
     protected static void appendProperties(AbstractConfig config) {
         if (config == null) {
             return;
         }
+        // 根据配置类名解析出前缀:dubbo.protocol.  dubbo.registry.
         String prefix = "dubbo." + getTagName(config.getClass()) + ".";
         Method[] methods = config.getClass().getMethods();
         for (Method method : methods) {
             try {
                 String name = method.getName();
+                // 找set方法
                 if (name.length() > 3 && name.startsWith("set") && Modifier.isPublic(method.getModifiers())
                         && method.getParameterTypes().length == 1 && isPrimitive(method.getParameterTypes()[0])) {
+                    // 拿到属性名字
                     String property = StringUtils.camelToSplitName(name.substring(3, 4).toLowerCase() + name.substring(4), ".");
-
+                    // 系统环境变量拿值
                     String value = null;
                     if (config.getId() != null && config.getId().length() > 0) {
+                        // 再拼接：dubbo.protocol.name
                         String pn = prefix + config.getId() + "." + property;
                         value = System.getProperty(pn);
                         if (!StringUtils.isBlank(value)) {
                             logger.info("Use System Property " + pn + " to config dubbo");
                         }
                     }
+                    // 去掉ID再拿一次系统环境变量拿值
                     if (value == null || value.length() == 0) {
                         String pn = prefix + property;
                         value = System.getProperty(pn);
@@ -117,6 +127,7 @@ public abstract class AbstractConfig implements Serializable {
                             logger.info("Use System Property " + pn + " to config dubbo");
                         }
                     }
+                    // 找get和is方法再拿一次系统环境变量拿值
                     if (value == null || value.length() == 0) {
                         Method getter;
                         try {
@@ -128,6 +139,7 @@ public abstract class AbstractConfig implements Serializable {
                                 getter = null;
                             }
                         }
+                        // get方法没有，再去dubbo.properties配置文件中拿
                         if (getter != null) {
                             if (getter.invoke(config) == null) {
                                 if (config.getId() != null && config.getId().length() > 0) {
@@ -423,7 +435,7 @@ public abstract class AbstractConfig implements Serializable {
                     }
                     String setter = "set" + property.substring(0, 1).toUpperCase() + property.substring(1);
                     Object value = method.invoke(annotation);
-                    if (!isAnnotationArray(method.getReturnType()) &&  value != null && !value.equals(method.getDefaultValue())) {
+                    if (!isAnnotationArray(method.getReturnType()) && value != null && !value.equals(method.getDefaultValue())) {
                         Class<?> parameterType = ReflectUtils.getBoxedClass(method.getReturnType());
                         if ("filter".equals(property) || "listener".equals(property)) {
                             parameterType = String.class;

@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * abstract ProtocolSupport.
- * 协议抽象类，
+ * 协议抽象类，公共逻辑
  */
 public abstract class AbstractProtocol implements Protocol {
 

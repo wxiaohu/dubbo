@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 
 /**
  * InvokerHandler
+ * JDK代理中的InvocationHandler
  */
 public class InvokerInvocationHandler implements InvocationHandler {
 
