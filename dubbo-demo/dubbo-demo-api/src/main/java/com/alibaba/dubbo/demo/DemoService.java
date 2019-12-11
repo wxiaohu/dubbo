@@ -18,6 +18,8 @@ package com.alibaba.dubbo.demo;
 
 public interface DemoService {
 
+    public String C = "C";
+
     String sayHello(String name);
 
 }

@@ -53,6 +53,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     private static final long serialVersionUID = -1559314110797223229L;
 
     // local impl class name for the service interface
+    // 设为true/default，表示使用缺省代理类名，即：接口名 + Local后缀，服务接口客户端本地代理类名，用于在客户端执行本地逻辑，如本地缓存等，该本地代理类的构造函数必须允许传入远程代理对象
     protected String local;
 
     // local stub class name for the service interface
@@ -104,6 +105,9 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     // the scope for referring/exporting a service, if it's local, it means searching in current JVM only.
     private String scope;
 
+    /**
+     * 检查注册中心配置
+     */
     protected void checkRegistry() {
         // for backward compatibility
         if (registries == null || registries.isEmpty()) {
@@ -132,6 +136,9 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
         }
     }
 
+    /**
+     * 检查Application配置，
+     */
     @SuppressWarnings("deprecation")
     protected void checkApplication() {
         // for backward compatibility
@@ -158,15 +165,24 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
         }
     }
 
+    /**
+     * 加载注册中心，拼接URL
+     * registry://127.0.0.1:2181/com.alibaba.dubbo.registry.RegistryService?application=demo-provider&dubbo=2.0.2&pid=8000&qos.port=22222&registry=zookeeper&timestamp=1576044821881
+     *
+     * @param provider
+     * @return
+     */
     protected List<URL> loadRegistries(boolean provider) {
         checkRegistry();
         List<URL> registryList = new ArrayList<URL>();
         if (registries != null && !registries.isEmpty()) {
             for (RegistryConfig config : registries) {
+                // 没有 address 默认0.0.0.0
                 String address = config.getAddress();
                 if (address == null || address.length() == 0) {
                     address = Constants.ANYHOST_VALUE;
                 }
+                // 再加载一遍系统环境变量
                 String sysaddress = System.getProperty("dubbo.registry.address");
                 if (sysaddress != null && sysaddress.length() > 0) {
                     address = sysaddress;
@@ -179,8 +195,10 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
                     map.put("dubbo", Version.getProtocolVersion());
                     map.put(Constants.TIMESTAMP_KEY, String.valueOf(System.currentTimeMillis()));
                     if (ConfigUtils.getPid() > 0) {
+                        // PID 当前Java进程ID
                         map.put(Constants.PID_KEY, String.valueOf(ConfigUtils.getPid()));
                     }
+                    // 协议处理
                     if (!map.containsKey("protocol")) {
                         if (ExtensionLoader.getExtensionLoader(RegistryFactory.class).hasExtension("remote")) {
                             map.put("protocol", "remote");
@@ -188,6 +206,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
                             map.put("protocol", "dubbo");
                         }
                     }
+                    // 各种解析生成默认值，最后实例化一个URL对象
                     List<URL> urls = UrlUtils.parseURLs(address, map);
                     for (URL url : urls) {
                         url = url.addParameter(Constants.REGISTRY_KEY, url.getProtocol());
@@ -257,6 +276,12 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
         return null;
     }
 
+    /**
+     * 检查interfaceClass和method参数配置，配置项方法名是否合法
+     *
+     * @param interfaceClass
+     * @param methods
+     */
     protected void checkInterfaceAndMethods(Class<?> interfaceClass, List<MethodConfig> methods) {
         // interface cannot be null
         if (interfaceClass == null) {
@@ -288,6 +313,11 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
         }
     }
 
+    /**
+     * 检查本地伪装
+     *
+     * @param interfaceClass
+     */
     void checkMock(Class<?> interfaceClass) {
         if (ConfigUtils.isEmpty(mock)) {
             return;
@@ -317,6 +347,11 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
         }
     }
 
+    /**
+     * 检查本地存根构造器构造函数必须允许传入远程代理对象
+     *
+     * @param interfaceClass
+     */
     void checkStub(Class<?> interfaceClass) {
         if (ConfigUtils.isNotEmpty(local)) {
             Class<?> localClass = ConfigUtils.isDefault(local) ? ReflectUtils.forName(interfaceClass.getName() + "Local") : ReflectUtils.forName(local);
