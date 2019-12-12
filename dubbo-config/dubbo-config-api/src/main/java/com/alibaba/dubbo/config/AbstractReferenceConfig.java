@@ -43,6 +43,9 @@ public abstract class AbstractReferenceConfig extends AbstractInterfaceConfig {
     protected String generic;
 
     // whether to find reference's instance from the current JVM
+    /**
+     * 是否injvm
+     */
     protected Boolean injvm;
 
     // lazy create connection

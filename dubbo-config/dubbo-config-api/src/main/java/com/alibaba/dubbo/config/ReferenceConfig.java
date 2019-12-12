@@ -76,6 +76,9 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
     // client type
     private String client;
     // url for peer-to-peer invocation
+    /**
+     * 直连配置URL
+     */
     private String url;
     // method configs
     private List<MethodConfig> methods;
@@ -85,7 +88,13 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
     // interface proxy reference
     private transient volatile T ref;
     private transient volatile Invoker<?> invoker;
+    /**
+     * 是否已经初始化
+     */
     private transient volatile boolean initialized;
+    /**
+     * 是否已经销毁
+     */
     private transient volatile boolean destroyed;
     @SuppressWarnings("unused")
     private final Object finalizerGuardian = new Object() {
@@ -156,6 +165,11 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
         return urls;
     }
 
+    /**
+     * 获取服务引用实例
+     *
+     * @return
+     */
     public synchronized T get() {
         if (destroyed) {
             throw new IllegalStateException("Already destroyed!");
@@ -183,6 +197,9 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
         ref = null;
     }
 
+    /**
+     * 初始化
+     */
     private void init() {
         if (initialized) {
             return;
@@ -191,12 +208,15 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
         if (interfaceName == null || interfaceName.length() == 0) {
             throw new IllegalStateException("<dubbo:reference interface=\"\" /> interface not allow null!");
         }
+        // 初始化配置，从环境变量和配置文件中
         // get consumer's global configuration
         checkDefault();
         appendProperties(this);
+        // 是否泛化调用
         if (getGeneric() == null && getConsumer() != null) {
             setGeneric(getConsumer().getGeneric());
         }
+        // 加载interfaceClass
         if (ProtocolUtils.isGeneric(getGeneric())) {
             interfaceClass = GenericService.class;
         } else {
@@ -206,13 +226,18 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
             } catch (ClassNotFoundException e) {
                 throw new IllegalStateException(e.getMessage(), e);
             }
+            // 检查方法级别配置是否合法
             checkInterfaceAndMethods(interfaceClass, methods);
         }
+        // 获取直连配置
+        // 在<dubbo:reference>中配置url指向提供者，将绕过注册中心，多个地址用分号隔开
+        // java -Dcom.alibaba.xxx.XxxService=dubbo://localhost:20890
+        // -Ddubbo.resolve.file=xxx.properties
         String resolve = System.getProperty(interfaceName);
         String resolveFile = null;
-        if (resolve == null || resolve.length() == 0) {
+        if (resolve == null || resolve.length() == 0) { // 没有 java -D参数 读配置文件
             resolveFile = System.getProperty("dubbo.resolve.file");
-            if (resolveFile == null || resolveFile.length() == 0) {
+            if (resolveFile == null || resolveFile.length() == 0) { // 没有指定配置文件，默认user.home下找
                 File userResolveFile = new File(new File(System.getProperty("user.home")), "dubbo-resolve.properties");
                 if (userResolveFile.exists()) {
                     resolveFile = userResolveFile.getAbsolutePath();
@@ -246,6 +271,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
                 }
             }
         }
+        // 各种初始化
         if (consumer != null) {
             if (application == null) {
                 application = consumer.getApplication();
@@ -276,9 +302,11 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
                 monitor = application.getMonitor();
             }
         }
+        // 各种检查
         checkApplication();
         checkStub(interfaceClass);
         checkMock(interfaceClass);
+        // 开始组装URL参数
         Map<String, String> map = new HashMap<String, String>();
         Map<Object, Object> attributes = new HashMap<Object, Object>();
         map.put(Constants.SIDE_KEY, Constants.CONSUMER_SIDE);
@@ -337,8 +365,15 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
         ApplicationModel.initConsumerModel(getUniqueServiceName(), consumerModel);
     }
 
+    /**
+     * 创建代理
+     *
+     * @param map
+     * @return
+     */
     @SuppressWarnings({"unchecked", "rawtypes", "deprecation"})
     private T createProxy(Map<String, String> map) {
+        // temp://localhost?application=demo-consumer&check=false&dubbo=2.0.2&interface=com.alibaba.dubbo.demo.DemoService&methods=sayHello&pid=22488&qos.port=33333&register.ip=172.16.11.59&side=consumer&timestamp=1576138166713
         URL tmpUrl = new URL("temp", "localhost", 0, map);
         final boolean isJvmRefer;
         if (isInjvm() == null) {
@@ -353,7 +388,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
         } else {
             isJvmRefer = isInjvm().booleanValue();
         }
-
+        // inJvm处理
         if (isJvmRefer) {
             URL url = new URL(Constants.LOCAL_PROTOCOL, NetUtils.LOCALHOST, 0, interfaceClass.getName()).addParameters(map);
             invoker = refprotocol.refer(interfaceClass, url);
@@ -361,6 +396,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
                 logger.info("Using injvm service " + interfaceClass.getName());
             }
         } else {
+            // 直连方式处理
             if (url != null && url.length() > 0) { // user specified URL, could be peer-to-peer address, or register center's address.
                 String[] us = Constants.SEMICOLON_SPLIT_PATTERN.split(url);
                 if (us != null && us.length > 0) {
@@ -432,6 +468,9 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
         return (T) proxyFactory.getProxy(invoker);
     }
 
+    /**
+     * 初始化ConsumerConfig，从系统环境变量或者配置文件
+     */
     private void checkDefault() {
         if (consumer == null) {
             consumer = new ConsumerConfig();
