@@ -1,7 +1,7 @@
 package com.alibaba.dubbo.demo.provider;
 
-// com.alibaba.dubbo.common.bytecode.Wrapper0
-// com.alibaba.dubbo.common.bytecode.Wrapper
+// className:com.alibaba.dubbo.common.bytecode.Wrapper0
+// superClass:com.alibaba.dubbo.common.bytecode.Wrapper
 public class WrapperClass {
 
     // property name array.

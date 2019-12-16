@@ -269,6 +269,25 @@ public class DubboProtocol extends AbstractProtocol {
         }
     }
 
+    /**
+     * 初始化流程，以DubboProtocol，Netty为例
+     * 1. 服务发布生成Exporter成功之后，调用openServer(URL url)打开服务，如果host:port对应ExchangeServer已存在，调用server.reset(url)重置服务参数。如果不存在调用createServer(URL url)创建服务。
+     * 2. 通过HeaderExchanger.bind(URL url,ExchangeHandler handler)初始化HeaderExchangeServer。
+     * 3. 通过NettyTransporter.bind(URL url, ChannelHandler listener)初始化NettyServer。
+     * 4. 初始化所有ChannelHandler：MultiMessageHandler,HeartbeatHandler,AllChannelHandler,DecodeHandler,HeaderExchangeHandler,requestHandler。装饰器模式，组合关系，最外层ChannelHandler为MultiMessageHandler。
+     * 5. HeaderExchangeServer持有NettyServer引用，NettyServer持有MultiMessageHandler引用。
+     *
+     * 线程模型实现
+     * 1.
+     *
+     * 心跳检测实现
+     *
+     * 异步消息实现
+     *
+     * 请求响应模型实现
+     * @param url
+     * @return
+     */
     private ExchangeServer createServer(URL url) {
         // send readonly event when server closes, it's enabled by default
         url = url.addParameterIfAbsent(Constants.CHANNEL_READONLYEVENT_SENT_KEY, Boolean.TRUE.toString());
