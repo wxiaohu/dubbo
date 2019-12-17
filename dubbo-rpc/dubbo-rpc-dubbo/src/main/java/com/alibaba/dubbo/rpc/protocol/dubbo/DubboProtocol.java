@@ -270,21 +270,37 @@ public class DubboProtocol extends AbstractProtocol {
     }
 
     /**
-     * 初始化流程，以DubboProtocol，Netty为例
-     * 1. 服务发布生成Exporter成功之后，调用openServer(URL url)打开服务，如果host:port对应ExchangeServer已存在，调用server.reset(url)重置服务参数。如果不存在调用createServer(URL url)创建服务。
-     * 2. 通过HeaderExchanger.bind(URL url,ExchangeHandler handler)初始化HeaderExchangeServer。
-     * 3. 通过NettyTransporter.bind(URL url, ChannelHandler listener)初始化NettyServer。
-     * 4. 初始化所有ChannelHandler：MultiMessageHandler,HeartbeatHandler,AllChannelHandler,DecodeHandler,HeaderExchangeHandler,requestHandler。装饰器模式，组合关系，最外层ChannelHandler为MultiMessageHandler。
-     * 5. HeaderExchangeServer持有NettyServer引用，NettyServer持有MultiMessageHandler引用。
-     *
      * 线程模型实现
-     * 1.
-     *
+     * 线程池SPI接口
+     * 线程池调度器SPI接口
+     * 线程池初始化
+     * 拒绝策略
+     * <p>
+     * 1. Dispatcher线程池调度器SPI接口，负责将事件和消息处理派发到线程池。有五中不同实现，通过Dubbo SPI获取具体调度器实现。
+     * 2. AllDispatcher：默认调度策略，对应AllChannelHandler，连接、断开连接、捕获异常以及消息处理都派发到线程池。
+     * 3. ConnectionOrderedDispatcher：对应ConnectionOrderedChannelHandler，连接、取消连接以及消息处理都派发到线程池。
+     * - 该类自己创建了一个跟连接相关的线程池connectionExecutor，把连接操作和断开连接操派发到该线程池，而消息处理则分发到WrappedChannelHandler的线程池中。
+     * - connectionExecutor最大线程数和最大核心线程数均为1，采用LinkedBlockQueue阻塞队列，AbortPolicyWithReport拒绝策略。队列长度默认Integer.MAX_VALUE，线程名默认Dubbo，均可通过URL参数修改。
+     * 4. DirectDispatcher：所有事件和消息处理都不派发到线程池，直接通过I/O线程执行。
+     * 5. ExecutionDispatcher：对应ExecutionChannelHandler，把接收到的请求消息分派到线程池，而除了请求消息以外，其他消息类型和事件都直接通过I/O线程执行。
+     * 6. MessageOnlyDispatcher：对应MessageOnlyChannelHandler，所有接收到的消息分发到线程池，其他类型直接通过I/O线程执行。
+     * 7. WrappedChannelHandler：ChannelHandler装饰器类，所有Dispatcher对应ChannelHandler的父类。在其构造方法中初始化线程池，分为客户端线程池和服务端线程池。
+     * 10. DataStore数据存储SPI接口，只有一个实现SimpleDataStore，一种数据存储结构。线程池初始化完成之后会放进去<componentKey,<port,executor>>，用在服务关闭时能拿到这个线程池shutdown。
+     * 8. ThreadPool：线程池SPI接口，四种实现
+     * - FixedThreadPool：默认线程池。固定数量线程的线程池，类似Executors#newFixedThreadPool()。核心线程数和最大线程数默认200，等待队列默认SynchronousQueue，若queues参数不为0，则等待队列为LinkedBlockingQueue。线程名默认Dubbo。均可通过URL参数修改。
+     * - CachedThreadPool：缓存线程池，类似Executors.newCachedThreadPool()。核心线程数默认0，最大线程数默认Integer.MAX_VALUE，等待队列默认SynchronousQueue，若queues参数不为0，则等待队列为LinkedBlockingQueue，最大空闲时间默认1分钟，线程名默认Dubbo。均可通过URL参数修改。
+     * - EagerThreadPool：当线程数量达到corePoolSize之后，只有当workqueue满了之后，才会增加工作线程。这个线程池就是对这个特性做了优化。核心逻辑：记录提交任务数submittedTaskCount，offer方法中判断当提交任务数量大于核心线程数小于最大线程数穿件工作中者线程不如队列。达到最大线程数再入队列。
+     * - LimitedThreadPool：有限的线程池，核心线程数默认0，最大线程数默认200，等待队列默认SynchronousQueue，若queues参数不为0，则等待队列为LinkedBlockingQueue，最大空闲时间默认Integer.MAX_VALUE分钟，线程名默认Dubbo。均可通过URL参数修改。
+     * 9.AbortPolicyWithReport：线程池拒绝策略：打印warn日志，开一个线程将线程堆栈信息写到文件中。默认user.home目录。用到了Semaphore，保证只有一个线程打印日志
+     * 10 ChannelEventRunnable:分派到线程池中的工作者线程。根据不同的事件类型做不同的处理。
+     * <p>
+     * <p>
      * 心跳检测实现
-     *
+     * <p>
      * 异步消息实现
-     *
+     * <p>
      * 请求响应模型实现
+     *
      * @param url
      * @return
      */
@@ -315,6 +331,12 @@ public class DubboProtocol extends AbstractProtocol {
         return server;
     }
 
+    /**
+     * 异步调用，事件回调实现
+     * 1.
+     * @param url
+     * @throws RpcException
+     */
     private void optimizeSerialization(URL url) throws RpcException {
         String className = url.getParameter(Constants.OPTIMIZER_KEY, "");
         if (StringUtils.isEmpty(className) || optimizers.contains(className)) {
