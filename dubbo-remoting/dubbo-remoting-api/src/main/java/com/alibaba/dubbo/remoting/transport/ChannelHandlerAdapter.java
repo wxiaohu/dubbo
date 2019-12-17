@@ -36,6 +36,7 @@ public class ChannelHandlerAdapter implements ChannelHandler {
 
     @Override
     public void sent(Channel channel, Object message) throws RemotingException {
+        System.out.println("ChannelHandlerAdapter.sent");
     }
 
     @Override

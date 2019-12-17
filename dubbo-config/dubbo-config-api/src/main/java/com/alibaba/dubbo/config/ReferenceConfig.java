@@ -320,7 +320,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
             if (revision != null && revision.length() > 0) {
                 map.put("revision", revision);
             }
-
+            // 拿到所有方法名
             String[] methods = Wrapper.getWrapper(interfaceClass).getMethodNames();
             if (methods.length == 0) {
                 logger.warn("NO method found in service interface " + interfaceClass.getName());
@@ -376,6 +376,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
         // temp://localhost?application=demo-consumer&check=false&dubbo=2.0.2&interface=com.alibaba.dubbo.demo.DemoService&methods=sayHello&pid=22488&qos.port=33333&register.ip=172.16.11.59&side=consumer&timestamp=1576138166713
         URL tmpUrl = new URL("temp", "localhost", 0, map);
         final boolean isJvmRefer;
+        // 判断是否injvm
         if (isInjvm() == null) {
             if (url != null && url.length() > 0) { // if a url is specified, don't do local reference
                 isJvmRefer = false;
@@ -405,9 +406,14 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
                         if (url.getPath() == null || url.getPath().length() == 0) {
                             url = url.setPath(interfaceName);
                         }
+                        // 检测 url 协议是否为 registry，若是，表明用户想使用指定的注册中心
+                        // 将 map 转换为查询字符串，并作为 refer 参数的值添加到 url 中
                         if (Constants.REGISTRY_PROTOCOL.equals(url.getProtocol())) {
                             urls.add(url.addParameterAndEncoded(Constants.REFER_KEY, StringUtils.toQueryString(map)));
                         } else {
+                            // 合并 url，移除服务提供者的一些配置（这些配置来源于用户配置的 url 属性），
+                            // 比如线程池相关配置。并保留服务提供者的部分配置，比如版本，group，时间戳等
+                            // 最后将合并后的配置设置为 url 查询字符串中。
                             urls.add(ClusterUtils.mergeUrl(url, map));
                         }
                     }
@@ -427,7 +433,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
                     throw new IllegalStateException("No such any registry to reference " + interfaceName + " on the consumer " + NetUtils.getLocalHost() + " use dubbo version " + Version.getVersion() + ", please config <dubbo:registry address=\"...\" /> to your spring config.");
                 }
             }
-
+            // registry://127.0.0.1:2181/com.alibaba.dubbo.registry.RegistryService?application=demo-consumer&dubbo=2.0.2&pid=16292&qos.port=33333&refer=application%3Ddemo-consumer%26check%3Dfalse%26dubbo%3D2.0.2%26interface%3Dcom.alibaba.dubbo.demo.DemoService%26methods%3DsayHello%26pid%3D16292%26qos.port%3D33333%26register.ip%3D172.16.11.59%26side%3Dconsumer%26timestamp%3D1576569990840&registry=zookeeper&timestamp=1576569990878
             if (urls.size() == 1) {
                 invoker = refprotocol.refer(interfaceClass, urls.get(0));
             } else {
