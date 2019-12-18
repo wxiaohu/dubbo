@@ -32,7 +32,7 @@ import java.util.Collections;
 
 /**
  * ListenerProtocol
- * 暴露服务和引用服务时增加Listener
+ * 暴露服务和引用服务时增加Listener，SPI中的Wrapper
  */
 public class ProtocolListenerWrapper implements Protocol {
 
