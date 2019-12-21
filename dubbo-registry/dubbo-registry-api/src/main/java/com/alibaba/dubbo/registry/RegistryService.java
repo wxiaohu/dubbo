@@ -25,7 +25,7 @@ import java.util.List;
  *
  * @see com.alibaba.dubbo.registry.Registry
  * @see com.alibaba.dubbo.registry.RegistryFactory#getRegistry(URL)
- * 注册中心服务接口，抽象register，unregister，subscribe，unsubscribe，lookup方法。
+ * 注册中心服务接口，规定注册中心功能契约。抽象register，unregister，subscribe，unsubscribe，lookup方法。由具体的注册中心服务去实现。
  */
 public interface RegistryService {
 
@@ -39,7 +39,19 @@ public interface RegistryService {
      * 4. When the registry is restarted, network jitter, data can not be lost, including automatically deleting data from the broken line.<br>
      * 5. Allow URLs which have the same URL but different parameters to coexist,they can't cover each other.<br>
      *
-     * @param url  Registration information , is not allowed to be empty, e.g: dubbo://10.20.153.10/com.alibaba.foo.BarService?version=1.0.0&application=kylin
+     * @param url Registration information , is not allowed to be empty, e.g: dubbo://10.20.153.10/com.alibaba.foo.BarService?version=1.0.0&application=kylin
+     */
+    /**
+     * 注册数据，例如 : 服务提供者, 服务消费者地址, 路由规则, override rule and other data.
+     * <p>
+     * 注册需要支持合同：<br>
+     * 1. 当URL设置check=false参数. 注册失败时, 不会在后台引发异常并重试异常。否则，将引发异常。<br>
+     * 2. 当URL设置dynamic=false参数，它需要持久化存储，否则，建立临时节点，当注册者异常退出时，应将其自动删除。<br>
+     * 3. 当URL设置category=routers, 这意味着分类存储， 默认分类是providers, 数据可以通过分类部分进行通知。 <br>
+     * 4. 注册中心重新启动时, 网络抖动，数据不会丢失，包括从虚线自动删除数据。<br>
+     * 5. 允许具有相同URL但不同参数的URL共存，它们不能相互覆盖。<br>
+     *
+     * @param url Registration information , is not allowed to be empty, e.g: dubbo://10.20.153.10/com.alibaba.foo.BarService?version=1.0.0&application=kylin
      */
     void register(URL url);
 
@@ -49,6 +61,15 @@ public interface RegistryService {
      * Unregistering is required to support the contract:<br>
      * 1. If it is the persistent stored data of dynamic=false, the registration data can not be found, then the IllegalStateException is thrown, otherwise it is ignored.<br>
      * 2. Unregister according to the full url match.<br>
+     *
+     * @param url Registration information , is not allowed to be empty, e.g: dubbo://10.20.153.10/com.alibaba.foo.BarService?version=1.0.0&application=kylin
+     */
+    /**
+     * 取消注册
+     * <p>
+     * 取消注册需要支持的合同：<br>
+     * 1. 如果是持久存储的数据dynamic=false, 找不到注册数据, 则抛出IllegalStateException，否则将被忽略。<br>
+     * 2. 根据完整的网址匹配取消注册。<br>
      *
      * @param url Registration information , is not allowed to be empty, e.g: dubbo://10.20.153.10/com.alibaba.foo.BarService?version=1.0.0&application=kylin
      */
@@ -69,6 +90,21 @@ public interface RegistryService {
      * @param url      Subscription condition, not allowed to be empty, e.g. consumer://10.20.153.10/com.alibaba.foo.BarService?version=1.0.0&application=kylin
      * @param listener A listener of the change event, not allowed to be empty
      */
+    /**
+     * 订阅合格的注册数据，并在更改注册数据时自动推送。
+     * <p>
+     * 订阅需要支持的合同:<br>
+     * 1. 当URL设置check=false参数， 注册失败时, 该异常不会在后台引发和重试。 <br>
+     * 2. 当URL设置category=routers,  它仅通知指定的分类数据。多个分类之间用逗号分隔，并允许星号匹配，这表示所有分类数据都已订阅。<br>
+     * 3. 允许interface, group, version, and classifier 作为条件查询, e.g.: interface=com.alibaba.foo.BarService&version=1.0.0<br>
+     * 4. 查询条件允许星号匹配，订阅所有接口的所有数据包的所有版本， e.g. :interface=*&group=*&version=*&classifier=*<br>
+     * 5. 当注册表重新启动并出现网络抖动时，有必要自动恢复订阅请求。<br>
+     * 6. 允许具有相同URL但不同参数的URL共存，它们不能相互覆盖。<br>
+     * 7. 当第一个通知完成并返回时，必须阻止订阅过程。<br>
+     *
+     * @param url      Subscription condition, not allowed to be empty, e.g. consumer://10.20.153.10/com.alibaba.foo.BarService?version=1.0.0&application=kylin
+     * @param listener A listener of the change event, not allowed to be empty
+     */
     void subscribe(URL url, NotifyListener listener);
 
     /**
@@ -81,10 +117,21 @@ public interface RegistryService {
      * @param url      Subscription condition, not allowed to be empty, e.g. consumer://10.20.153.10/com.alibaba.foo.BarService?version=1.0.0&application=kylin
      * @param listener A listener of the change event, not allowed to be empty
      */
+    /**
+     * 取消订阅
+     * <p>
+     * 取消订阅必须支持的契约:<br>
+     * 1. 如果没有订阅，则直接忽略它。<br>
+     * 2. 取消订阅完整的URL匹配。<br>
+     *
+     * @param url      Subscription condition, not allowed to be empty, e.g. consumer://10.20.153.10/com.alibaba.foo.BarService?version=1.0.0&application=kylin
+     * @param listener A listener of the change event, not allowed to be empty
+     */
     void unsubscribe(URL url, NotifyListener listener);
 
     /**
      * Query the registered data that matches the conditions. Corresponding to the push mode of the subscription, this is the pull mode and returns only one result.
+     * 查询符合条件的注册数据。对应于订阅的推送模式，这是请求模式，仅返回一个结果。
      *
      * @param url Query condition, is not allowed to be empty, e.g. consumer://10.20.153.10/com.alibaba.foo.BarService?version=1.0.0&application=kylin
      * @return The registered information list, which may be empty, the meaning is the same as the parameters of {@link com.alibaba.dubbo.registry.NotifyListener#notify(List<URL>)}.

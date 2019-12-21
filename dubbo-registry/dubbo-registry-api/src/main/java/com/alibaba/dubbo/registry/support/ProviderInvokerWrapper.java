@@ -24,6 +24,7 @@ import com.alibaba.dubbo.rpc.RpcException;
 
 /**
  * @date 2017/11/23
+ * Invoker装饰类，使用在QOS
  */
 public class ProviderInvokerWrapper<T> implements Invoker {
     private Invoker<T> invoker;
@@ -32,7 +33,7 @@ public class ProviderInvokerWrapper<T> implements Invoker {
     private URL providerUrl;
     private volatile boolean isReg;
 
-    public ProviderInvokerWrapper(Invoker<T> invoker,URL registryUrl,URL providerUrl) {
+    public ProviderInvokerWrapper(Invoker<T> invoker, URL registryUrl, URL providerUrl) {
         this.invoker = invoker;
         this.originUrl = URL.valueOf(invoker.getUrl().toFullString());
         this.registryUrl = URL.valueOf(registryUrl.toFullString());

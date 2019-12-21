@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @date 2017/11/23
+ * 使用在QOS，不知道干嘛的
  */
 public class ProviderConsumerRegTable {
     public static ConcurrentHashMap<String, Set<ProviderInvokerWrapper>> providerInvokers = new ConcurrentHashMap<String, Set<ProviderInvokerWrapper>>();

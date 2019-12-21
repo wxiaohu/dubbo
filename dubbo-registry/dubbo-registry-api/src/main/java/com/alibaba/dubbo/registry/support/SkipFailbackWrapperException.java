@@ -22,6 +22,7 @@ package com.alibaba.dubbo.registry.support;
  * NOTE: Expect to find other more conventional ways of instruction.
  *
  * @see FailbackRegistry
+ * 调过失败重试的异常
  */
 public class SkipFailbackWrapperException extends RuntimeException {
     public SkipFailbackWrapperException(Throwable cause) {

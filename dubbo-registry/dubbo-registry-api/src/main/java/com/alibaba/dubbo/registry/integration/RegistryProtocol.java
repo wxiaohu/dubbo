@@ -57,7 +57,7 @@ import static com.alibaba.dubbo.common.Constants.CHECK_KEY;
 
 /**
  * RegistryProtocol
- *
+ * 基于注册中心注册服务，发现服务的实现协议。
  */
 public class RegistryProtocol implements Protocol {
 

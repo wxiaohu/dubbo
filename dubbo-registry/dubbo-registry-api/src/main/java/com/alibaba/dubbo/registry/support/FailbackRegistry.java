@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * FailbackRegistry. (SPI, Prototype, ThreadSafe)
- *
+ * 支持失败重试的注册中心抽象类。
  */
 public abstract class FailbackRegistry extends AbstractRegistry {
 
@@ -145,7 +145,7 @@ public abstract class FailbackRegistry extends AbstractRegistry {
         } catch (Exception e) {
             Throwable t = e;
 
-            // If the startup detection is opened, the Exception is thrown directly.
+            // 如果启动检测已打开，则直接引发Exception。
             boolean check = getUrl().getParameter(Constants.CHECK_KEY, true)
                     && url.getParameter(Constants.CHECK_KEY, true)
                     && !Constants.CONSUMER_PROTOCOL.equals(url.getProtocol());

@@ -25,6 +25,7 @@ import com.alibaba.dubbo.rpc.RpcException;
 
 /**
  * @date 2017/11/23
+ * Invoker装饰类，使用在QOS
  */
 public class ConsumerInvokerWrapper<T> implements Invoker {
     private Invoker<T> invoker;

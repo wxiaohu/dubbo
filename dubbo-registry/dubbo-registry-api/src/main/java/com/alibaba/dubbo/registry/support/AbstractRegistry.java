@@ -51,7 +51,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * AbstractRegistry. (SPI, Prototype, ThreadSafe)
- *
+ * 注册中心抽象类，核心是实现了把URL缓存到本地缓存文件中的逻辑。加入服务注册地址列表和服务订阅URL和监听器Map
  */
 public abstract class AbstractRegistry implements Registry {
 
