@@ -21,7 +21,7 @@ import com.alibaba.dubbo.rpc.cluster.configurator.AbstractConfigurator;
 
 /**
  * AbsentConfigurator
- *
+ * 如果原先存在该属性的配置，则以原先配置的属性值优先，如果原先没有配置该属性，则添加新的配置属性。
  */
 public class AbsentConfigurator extends AbstractConfigurator {
 

@@ -40,7 +40,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * AbstractClusterInvoker
- *
+ * 集群Invoker抽象类，实现Invoker接口
  */
 public abstract class AbstractClusterInvoker<T> implements Invoker<T> {
 
@@ -95,16 +95,19 @@ public abstract class AbstractClusterInvoker<T> implements Invoker<T> {
 
     /**
      * Select a invoker using loadbalance policy.</br>
-     * a)Firstly, select an invoker using loadbalance. If this invoker is in previously selected list, or, 
+     * a)Firstly, select an invoker using loadbalance. If this invoker is in previously selected list, or,
      * if this invoker is unavailable, then continue step b (reselect), otherwise return the first selected invoker</br>
      * b)Reslection, the validation rule for reselection: selected > available. This rule guarantees that
-     * the selected invoker has the minimum chance to be one in the previously selected list, and also 
+     * the selected invoker has the minimum chance to be one in the previously selected list, and also
      * guarantees this invoker is available.
+     * 使用负载均衡策略选择Invoker：
+     * 1. 用LoadBalance选择一个Invoker，如果这个Invoker在之前的选择列表，或者这个Invoker不可用，则调用reselect()方法重新选择。否则返回这个Invoker。
+     * 2. 重新选择，过滤出已选择的Invoker再选择一次，如果Invoker都为已选择，则从已选择列表中选择一个可用Invoker返回。
      *
      * @param loadbalance load balance policy
      * @param invocation
-     * @param invokers invoker candidates
-     * @param selected  exclude selected invokers or not
+     * @param invokers    invoker candidates
+     * @param selected    exclude selected invokers or not
      * @return
      * @throws RpcException
      */
@@ -112,14 +115,16 @@ public abstract class AbstractClusterInvoker<T> implements Invoker<T> {
         if (invokers == null || invokers.isEmpty())
             return null;
         String methodName = invocation == null ? "" : invocation.getMethodName();
-
+        //是否启动了粘滞连接，粘滞连接用于有状态服务，尽可能让客户端总是向同一提供者发起调用，除非该提供者挂了，再连另一台。
         boolean sticky = invokers.get(0).getUrl().getMethodParameter(methodName, Constants.CLUSTER_STICKY_KEY, Constants.DEFAULT_CLUSTER_STICKY);
         {
             //ignore overloaded method
+            // 如果上一次粘滞连接的调用不在可选的提供者列合内，则直接设置为空
             if (stickyInvoker != null && !invokers.contains(stickyInvoker)) {
                 stickyInvoker = null;
             }
             //ignore concurrency problem
+            // stickyInvoker不为null,并且没在已选列表中，返回上次的服务提供者stickyInvoker，但之前强制校验可达性。
             if (sticky && stickyInvoker != null && (selected == null || !selected.contains(stickyInvoker))) {
                 if (availablecheck && stickyInvoker.isAvailable()) {
                     return stickyInvoker;
@@ -127,7 +132,7 @@ public abstract class AbstractClusterInvoker<T> implements Invoker<T> {
             }
         }
         Invoker<T> invoker = doSelect(loadbalance, invocation, invokers, selected);
-
+        // 如果启动粘滞连接，则记录这一次的调用
         if (sticky) {
             stickyInvoker = invoker;
         }
@@ -152,6 +157,7 @@ public abstract class AbstractClusterInvoker<T> implements Invoker<T> {
                 if (rinvoker != null) {
                     invoker = rinvoker;
                 } else {
+                    // 如果重新选择是空的，判断当前选择Invoker是不是Invoker列表最后一个，如果不是则返回当前Invoker的下一个，否则从第一个Invoker开始。
                     //Check the index of current selected invoker, if it's not the last one, choose the one at index+1.
                     int index = invokers.indexOf(invoker);
                     try {
@@ -230,6 +236,7 @@ public abstract class AbstractClusterInvoker<T> implements Invoker<T> {
         LoadBalance loadbalance = null;
 
         // binding attachments into invocation.
+        // 绑定附加值到Invocation。
         Map<String, String> contextAttachments = RpcContext.getContext().getAttachments();
         if (contextAttachments != null && contextAttachments.size() != 0) {
             ((RpcInvocation) invocation).addAttachments(contextAttachments);

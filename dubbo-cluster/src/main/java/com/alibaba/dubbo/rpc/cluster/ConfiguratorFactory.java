@@ -22,7 +22,7 @@ import com.alibaba.dubbo.common.extension.SPI;
 
 /**
  * ConfiguratorFactory. (SPI, Singleton, ThreadSafe)
- *
+ * 配置规则工厂SPI接口，提供抽象方法getConfigurator()获取配置规则实例
  */
 @SPI
 public interface ConfiguratorFactory {

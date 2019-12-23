@@ -27,7 +27,7 @@ import com.alibaba.dubbo.rpc.cluster.support.FailoverCluster;
  * <p>
  * <a href="http://en.wikipedia.org/wiki/Computer_cluster">Cluster</a>
  * <a href="http://en.wikipedia.org/wiki/Fault-tolerant_system">Fault-Tolerant</a>
- *
+ * 集群容错SPI接口，提供抽象方法join，合并Directory中的Invoker List为一个虚拟Invoker。默认扩展为FailoverCluster
  */
 @SPI(FailoverCluster.NAME)
 public interface Cluster {

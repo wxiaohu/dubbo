@@ -27,7 +27,7 @@ import java.util.List;
 
 /**
  * AvailableCluster
- *
+ * 调用第一个可用的服务器，仅仅应用于多注册中心。
  */
 public class AvailableClusterInvoker<T> extends AbstractClusterInvoker<T> {
 

@@ -27,6 +27,7 @@ import com.alibaba.dubbo.common.extension.SPI;
  *
  * @see Cluster#join(Directory)
  * @see Directory#list(com.alibaba.dubbo.rpc.Invocation)
+ * 路由规则工厂SPI接口，提供抽象方法getRouter()返回Router实例
  */
 @SPI
 public interface RouterFactory {

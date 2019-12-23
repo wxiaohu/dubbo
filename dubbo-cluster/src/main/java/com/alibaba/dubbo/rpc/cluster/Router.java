@@ -30,6 +30,7 @@ import java.util.List;
  *
  * @see com.alibaba.dubbo.rpc.cluster.Cluster#join(Directory)
  * @see com.alibaba.dubbo.rpc.cluster.Directory#list(Invocation)
+ * 路由规则接口，
  */
 public interface Router extends Comparable<Router>{
 

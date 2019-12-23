@@ -32,6 +32,7 @@ import java.util.List;
  * <a href="http://en.wikipedia.org/wiki/Load_balancing_(computing)">Load-Balancing</a>
  *
  * @see com.alibaba.dubbo.rpc.cluster.Cluster#join(Directory)
+ * 负载均衡SPI接口，提供抽象方法select()，根据规则选择一个合适的Invoker。默认扩展为RandomLoadBalance。
  */
 @SPI(RandomLoadBalance.NAME)
 public interface LoadBalance {

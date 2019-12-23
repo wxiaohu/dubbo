@@ -39,7 +39,7 @@ import java.util.Set;
  * Note that retry causes latency.
  * <p>
  * <a href="http://en.wikipedia.org/wiki/Failover">Failover</a>
- *
+ * 失败自动切换，当调用出现失败的时候，会自动切换集群中其他服务器，来获得invoker重试，通常用于读操作，但重试会带来更长延迟。一般都会设置重试次数。
  */
 public class FailoverClusterInvoker<T> extends AbstractClusterInvoker<T> {
 

@@ -27,7 +27,7 @@ import java.util.Set;
 
 /**
  * AbstractOverrideConfigurator
- *
+ * 配置抽象类
  */
 public abstract class AbstractConfigurator implements Configurator {
 
