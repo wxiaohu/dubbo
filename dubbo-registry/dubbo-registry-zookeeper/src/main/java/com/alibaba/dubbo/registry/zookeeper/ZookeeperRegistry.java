@@ -176,7 +176,7 @@ public class ZookeeperRegistry extends FailbackRegistry {
                 }
             } else {
                 List<URL> urls = new ArrayList<URL>();
-                for (String path : toCategoriesPath(url)) { // 根据URL获取一组订阅节点列表
+                for (String path : toCategoriesPath(url)) { // 从URL参数category中获取一组订阅节点列表，例如/dubbo/c.a.d.d.DemoService/routers
                     ConcurrentMap<NotifyListener, ChildListener> listeners = zkListeners.get(url);  // 获取监听器缓存，
                     if (listeners == null) {    // 没有缓存新增一个
                         zkListeners.putIfAbsent(url, new ConcurrentHashMap<NotifyListener, ChildListener>());
