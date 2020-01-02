@@ -34,7 +34,7 @@
     <dubbo:module name="1" registry="" monitor=""/>
 
     <!-- use dubbo protocol to export service on port 20880 -->
-    <dubbo:protocol name="dubbo" port="20880">
+    <dubbo:protocol name="dubbo" port="20882">
         <dubbo:parameter key="a" value="b"/>
     </dubbo:protocol>
 
@@ -47,7 +47,6 @@
             <dubbo:argument index="1" callback="true"/>
         </dubbo:method>
     </dubbo:service>
-
     <!--    &lt;!&ndash; service implementation, as same as regular local bean &ndash;&gt;-->
     <!--    <bean id="demoService2" class="com.alibaba.dubbo.demo.provider.DemoServiceImpl2"/>-->
 

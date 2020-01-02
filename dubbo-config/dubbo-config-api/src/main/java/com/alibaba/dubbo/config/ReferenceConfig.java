@@ -437,6 +437,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
             if (urls.size() == 1) {
                 invoker = refprotocol.refer(interfaceClass, urls.get(0));
             } else {
+                // 多注册中心，每个注册中心通过集群负载路由选一个Invoker，放入StaticDirectory
                 List<Invoker<?>> invokers = new ArrayList<Invoker<?>>();
                 URL registryURL = null;
                 for (URL url : urls) {
