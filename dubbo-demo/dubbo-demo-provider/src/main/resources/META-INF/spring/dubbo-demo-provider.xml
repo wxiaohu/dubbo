@@ -46,6 +46,7 @@
         <dubbo:method name="sayHello">
             <dubbo:argument index="1" callback="true"/>
         </dubbo:method>
+        <dubbo:parameter key="check" value="false"/>
     </dubbo:service>
     <!--    &lt;!&ndash; service implementation, as same as regular local bean &ndash;&gt;-->
     <!--    <bean id="demoService2" class="com.alibaba.dubbo.demo.provider.DemoServiceImpl2"/>-->
